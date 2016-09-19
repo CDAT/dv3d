@@ -3,7 +3,16 @@ Created on May 9, 2014
 
 @author: tpmaxwel
 '''
-import sys, vtk, cdms2, traceback, os, cdtime, cPickle, copy
+import warnings
+try:
+    import cdms2
+    import cdtime
+    has_cdms = True
+except:
+    warnings.warn("DV3D could not load cdms2, many features might be missing")
+    has_cdms = False
+
+import sys, vtk, traceback, os, cPickle, copy
 from StringIO import StringIO
 import numpy as np
 import inspect, ast
