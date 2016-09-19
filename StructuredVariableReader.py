@@ -5,7 +5,11 @@ Created on Nov 21, 2011
 '''
 
 import vtk, sys, os, copy, time, traceback, collections
-import cdms2, cdtime, cdutil, MV2, cPickle
+import cPickle
+try:
+    import cdms2, cdtime, cdutil, MV2
+except:
+    pass
 PortDataVersion = 0
 from ConfigurationFunctions import *
 from StructuredDataset import *

@@ -11,10 +11,16 @@ EnableMemoryLogging = False
 from DV3DPlot import  PlotType
 # from vtk.util.misc import vtkGetDataRoot
 # packagePath = os.path.dirname( __file__ )
-import cdms2, cdtime, cdutil, MV2
+try:
+    import cdms2, cdtime, cdutil, MV2
+    has_cdms = True
+except:
+    has_cdms = False
+    pass
 DataSetVersion = 0
 DefaultDecimation = [ 0, 7 ]
-cdms2.axis.level_aliases.append('isobaric')
+if has_cdms:
+    cdms2.axis.level_aliases.append('isobaric')
 
 def getItem( output, index = 0 ):
     if not ( isinstance(output,list) or isinstance(output,tuple) ): return  output
@@ -477,7 +483,8 @@ class CDMSDatasetRecord():
 
 class CDMSDataset:
 
-    NullVariable = cdms2.createVariable( np.array([]), id='NULL' )
+    if has_cdms:
+        NullVariable = cdms2.createVariable( np.array([]), id='NULL' )
 
     def __init__( self ):
         self.datasetRecs = collections.OrderedDict()

@@ -4,7 +4,12 @@ Created on Apr 29, 2014
 @author: tpmaxwel
 '''
 
-import sys, vtk, cdms2, traceback, os, cdtime, math
+import sys, vtk, traceback, os, math
+try:
+    import cdms2
+    import cdtime
+except:
+    pass
 from ColorMapManager import *
 from Shapefile import shapeFileReader
 #from ImagePlaneAxisAlignedWidget import *

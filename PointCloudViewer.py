@@ -4,7 +4,11 @@ Created on Aug 29, 2013
 @author: tpmaxwel
 '''
 
-import sys, cdms2
+import sys
+try:
+    import cdms2
+except:
+    pass
 import os.path, traceback, threading, multiprocessing
 import vtk, time
 from DistributedPointCollections import vtkPartitionedPointCloud, vtkLocalPointCloud, ScalarRangeType

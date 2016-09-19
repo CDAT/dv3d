@@ -6,7 +6,10 @@ Created on Sep 18, 2013
 
 import sys, os, traceback
 import numpy
-from cdms2.error import CDMSError
+try:
+    from cdms2.error import CDMSError
+except:
+    pass
 import vtk,  time,  math, threading
 from vtk.util import numpy_support
 from MultiVarPointCollection import MultiVarPointCollection, PlotType, isNone

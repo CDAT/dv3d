@@ -5,7 +5,10 @@ Created on Sep 18, 2013
 '''
 import sys, math
 import numpy
-import cdms2, cdutil
+try:
+    import cdms2, cdutil
+except:
+    pass
 
 class InterfaceType:
     ClimatePointCloud = 0
