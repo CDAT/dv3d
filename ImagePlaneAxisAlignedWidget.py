@@ -103,7 +103,7 @@ class ImagePlaneWidget:
         self.CreateDefaultProperties()
 
     def __del__(self):
-        print " **************************************** Deleting ImagePlaneWidget module, id = %d  **************************************** " % id(self)
+        print(" **************************************** Deleting ImagePlaneWidget module, id = %d  **************************************** " % id(self))
         sys.stdout.flush()
 
     def endSlicing(self):
@@ -114,7 +114,7 @@ class ImagePlaneWidget:
 
     def LookupTableObserver( self, caller=None, event = None ):
         table_range = self.LookupTable.GetTableRange()
-        print " Image Plane Widget LookupTable Observer: event = %s, caller=%x, range=%s, LookupTable=%x, self=%s" % ( event, id(caller), str( table_range ), id(self.LookupTable), id(self) )
+        print(" Image Plane Widget LookupTable Observer: event = %s, caller=%x, range=%s, LookupTable=%x, self=%s" % ( event, id(caller), str( table_range ), id(self.LookupTable), id(self) ))
 
     def GetCurrentButton(self):
         return self.CurrentButton
@@ -170,7 +170,7 @@ class ImagePlaneWidget:
     def MatchesBounds( self, bnds ):
         if self.InputBounds:
             for index, bval in enumerate(bnds):
-                if self.InputBounds[index] <> bval:
+                if self.InputBounds[index] != bval:
                     return False
         return True
 
@@ -191,7 +191,7 @@ class ImagePlaneWidget:
         if self.Interactor == None:
             if self.CurrentRenderer:
                 self.RenderWindow = self.CurrentRenderer.GetRenderWindow( )
-                if self.RenderWindow <> None:
+                if self.RenderWindow != None:
                     iren = self.RenderWindow.GetInteractor()
                     if iren: self.SetInteractor( iren )
 
@@ -204,8 +204,8 @@ class ImagePlaneWidget:
 #----------------------------------------------------------------------------
 
     def SetInteractor( self, iren ):
-        if ( iren <> None ):
-            if ( iren <> self.Interactor ):
+        if ( iren != None ):
+            if ( iren != self.Interactor ):
                 self.Interactor = iren
                 istyle = self.Interactor.GetInteractorStyle()
                 self.Interactor.AddObserver( 'LeftButtonPressEvent', self.OnLeftButtonDown )
@@ -222,7 +222,7 @@ class ImagePlaneWidget:
     def SetEnabled( self ):
 
         if ( not self.Interactor ):
-            print>>sys.stderr, "The interactor must be set prior to enabling/disabling widget"
+            print("The interactor must be set prior to enabling/disabling widget", file=sys.stderr)
             return
 
         if self.Enabled:  return
@@ -415,12 +415,12 @@ class ImagePlaneWidget:
 #----------------------------------------------------------------------------
 
     def HaltNavigationInteraction(self):
-        print " IPW-> HaltNavigationInteraction"
+        print(" IPW-> HaltNavigationInteraction")
         istyle = self.Interactor.GetInteractorStyle ()
         istyle.Off()
 
     def ResetNavigationInteraction(self):
-        print " IPW-> ResetNavigationInteraction"
+        print(" IPW-> ResetNavigationInteraction")
         istyle = self.Interactor.GetInteractorStyle ()
         istyle.On()
 
@@ -517,7 +517,7 @@ class ImagePlaneWidget:
 #----------------------------------------------------------------------------
 
     def OnAnyEvent( self, caller, event ):
-        print " ************* ImagePlaneWidget Event: ", str( event )
+        print(" ************* ImagePlaneWidget Event: ", str( event ))
 
 #----------------------------------------------------------------------------
 
@@ -561,12 +561,12 @@ class ImagePlaneWidget:
 #----------------------------------------------------------------------------
 
     def GetCursorData(self):
-        if ( self.State <> ImagePlaneWidget.Cursoring  or  self.CurrentImageValue == vtk.VTK_DOUBLE_MAX ): return None
+        if ( self.State != ImagePlaneWidget.Cursoring  or  self.CurrentImageValue == vtk.VTK_DOUBLE_MAX ): return None
         return [ self.CurrentCursorPosition[0], self.CurrentCursorPosition[1], self.CurrentCursorPosition[2], self.CurrentImageValue, self.CurrentImageValue2 ]
 
 #----------------------------------------------------------------------------
     def GetCursorDataStatus(self):
-        if ( self.State <> ImagePlaneWidget.Cursoring  or  self.CurrentImageValue == vtk.VTK_DOUBLE_MAX ): return 0
+        if ( self.State != ImagePlaneWidget.Cursoring  or  self.CurrentImageValue == vtk.VTK_DOUBLE_MAX ): return 0
         return 1
 
 #----------------------------------------------------------------------------
@@ -668,7 +668,7 @@ class ImagePlaneWidget:
         self.Clipper.Update()
         self.ImageData  = self.Clipper.GetInput()
         if ( not self.ImageData ):
-            print>>sys.stderr, "SetInput() before setting plane orientation."
+            print("SetInput() before setting plane orientation.", file=sys.stderr)
             return
 
         extent = self.ImageData.GetExtent()
@@ -765,7 +765,7 @@ class ImagePlaneWidget:
         return True
 
     def updateTextDisplay( self, text ):
-        print>>sys.stderr, " Update Text Display: ", text
+        print(" Update Text Display: ", text, file=sys.stderr)
 
     def getPlaneHeightCoord( self ):
         z = 0.0
@@ -810,7 +810,7 @@ class ImagePlaneWidget:
 
         position_index = self.GetSliceIndex()
 
-        if position_index <> self.plane_position_index[self.PlaneOrientation]:
+        if position_index != self.plane_position_index[self.PlaneOrientation]:
 
             self.plane_position_index[self.PlaneOrientation] = position_index
 
@@ -860,7 +860,7 @@ class ImagePlaneWidget:
 
     def SetLookupTable( self, table ):
 
-        if (self.LookupTable <> table):
+        if (self.LookupTable != table):
             self.LookupTable = table
             if (self.LookupTable == None): self.LookupTable = self.CreateDefaultLookupTable()
 #            self.LookupTable.AddObserver( 'AnyEvent', self.LookupTableObserver )
@@ -1393,7 +1393,7 @@ class ScalarSliceWidget(ImagePlaneWidget):
         else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())
 
     def SetPicker( self, picker):
-        if (self.PlanePicker <> picker):
+        if (self.PlanePicker != picker):
             self.PlanePicker = picker
             if (self.PlanePicker == None):
                 self.PlanePicker  = vtk.vtkCellPicker()
@@ -1515,8 +1515,8 @@ class StreamlineSliceWidget(ImagePlaneWidget):
 
 
     def updateScaling( self ):
-        if self.streamer <> None:
-            print "UpdateScaling: ", str( ( self.streamerStepLenth, self.streamerScale ) )
+        if self.streamer != None:
+            print("UpdateScaling: ", str( ( self.streamerStepLenth, self.streamerScale ) ))
             self.streamer.SetStepLength( self.streamerStepLenth )
             self.streamer.SetMaximumPropagationTime( self.streamerScale )
 
@@ -1535,7 +1535,7 @@ class StreamlineSliceWidget(ImagePlaneWidget):
         if vtk.VTK_MAJOR_VERSION <= 5:    self.streamer.SetSource( sample_source )
         else:                             self.streamer.SetSourceData( sample_source )
 #        self.Render()
-        print " ---- ApplyStreamerSeedGridSpacing:  Sample rate: %s, current Level: %d, sourceSpacing: %s, sourceExtent: %s " % ( str( sampleRate ), currentLevel, str( sourceSpacing ), str(sourceExtent ) )
+        print(" ---- ApplyStreamerSeedGridSpacing:  Sample rate: %s, current Level: %d, sourceSpacing: %s, sourceExtent: %s " % ( str( sampleRate ), currentLevel, str( sourceSpacing ), str(sourceExtent ) ))
         sys.stdout.flush()
 
     def SliceObserver(self, caller, event = None ):
@@ -1576,7 +1576,7 @@ class VectorSliceWidget(ImagePlaneWidget):
     def UpdateCut(self):
         self.cutter.SetCutFunction ( self.plane  )
         self.glyphMapper.Update()
-        if self.Interactor <> None:
+        if self.Interactor != None:
             z, units = self.getPlaneHeightCoord()
             textDisplay = "Level: %.2f %s" % ( z, units )
             self.updateTextDisplay( textDisplay )
@@ -1795,7 +1795,7 @@ class LICSliceWidget(ImagePlaneWidget):
 #        print "  Set VOI, extent = " , str( cut_extent )
         self.resample.Update()
 
-        if self.Interactor <> None:
+        if self.Interactor != None:
             z = self.GetSlicePosition()
             units = ""
             textDisplay = "Level: %.2f %s" % ( z, units )
@@ -1859,7 +1859,7 @@ class LICSliceWidget(ImagePlaneWidget):
         ncv1 = v1.GetNumberOfComponents() if v1 else 0
 
 
-        print "  Update LIC Filter, input extent = " , str( extent )
+        print("  Update LIC Filter, input extent = " , str( extent ))
         self.Texture.Update()
 
 #            if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.LICFilter.GetOutput())

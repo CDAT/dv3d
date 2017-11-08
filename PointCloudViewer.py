@@ -7,12 +7,12 @@ Created on Aug 29, 2013
 import sys, cdms2
 import os.path, traceback, threading, multiprocessing
 import vtk, time
-from DistributedPointCollections import vtkPartitionedPointCloud, vtkLocalPointCloud, ScalarRangeType
-from ConfigurationFunctions import *
-from ColorMapManager import *
-from MapManager import MapManager
-from MultiVarPointCollection import InterfaceType, PlotType
-from DV3DPlot import *
+from .DistributedPointCollections import vtkPartitionedPointCloud, vtkLocalPointCloud, ScalarRangeType
+from .ConfigurationFunctions import *
+from .ColorMapManager import *
+from .MapManager import MapManager
+from .MultiVarPointCollection import InterfaceType, PlotType
+from .DV3DPlot import *
 
 VTK_NO_MODIFIER         = 0
 VTK_SHIFT_MODIFIER      = 1
@@ -27,87 +27,87 @@ def getVarName( var ):
     if hasattr( var,'outvar'): return var.outvar.name
 
 def dump_np_array1( a, label=None ):
-    print "\n-------------------------------------------------------------------------------------------------"
-    if label: print label
+    print("\n-------------------------------------------------------------------------------------------------")
+    if label: print(label)
     npts = a.shape[0]
     nrows = 20
     iSkip = npts/nrows
     for ir in range(nrows):
         iPt = iSkip*ir
-        print "Pt[%d]: %f  " % ( iPt, a[ iPt ])
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %f  " % ( iPt, a[ iPt ]))
+    print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
         iPt =  npts/2 + ir
-        print "Pt[%d]: %f " % ( iPt, a[ iPt ] )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %f " % ( iPt, a[ iPt ] ))
+    print("-------------------------------------------------------------------------------------------------\n")
 
 def dump_np_array3( a, label=None ):
-    print "\n-------------------------------------------------------------------------------------------------"
-    if label: print label
+    print("\n-------------------------------------------------------------------------------------------------")
+    if label: print(label)
     npts = a.shape[0]/3
     nrows = 20
     iSkip = npts/nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         ioff = iPt*3
-        print "Pt[%d]: %.2f %.2f, %.2f " % ( iPt, a[ ioff ], a[ ioff+1 ], a[ ioff+2 ] )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, a[ ioff ], a[ ioff+1 ], a[ ioff+2 ] ))
+    print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
         iPt =  npts/2 + ir
         ioff = iPt*3
-        print "Pt[%d]: %.2f %.2f, %.2f " % ( iPt, a[ ioff ], a[ ioff+1 ], a[ ioff+2 ] )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, a[ ioff ], a[ ioff+1 ], a[ ioff+2 ] ))
+    print("-------------------------------------------------------------------------------------------------\n")
 
 def dump_vtk_array3( a, label=None ):
-    print "\n-------------------------------------------------------------------------------------------------"
-    if label: print label
+    print("\n-------------------------------------------------------------------------------------------------")
+    if label: print(label)
     npts = a.GetNumberOfTuples()
     nrows = 20
     iSkip = npts/nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         pt = a.GetTuple(iPt)
-        print "Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
+    print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
         iPt =  npts/2 + ir
         pt = a.GetTuple(iPt)
-        print "Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
+    print("-------------------------------------------------------------------------------------------------\n")
 
 def dump_vtk_array1( a, label=None ):
-    print "\n-------------------------------------------------------------------------------------------------"
-    if label: print label
+    print("\n-------------------------------------------------------------------------------------------------")
+    if label: print(label)
     npts = a.GetSize()
     nrows = 20
     iSkip = npts/nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         v = a.GetValue(iPt)
-        print "Pt[%d]: %.2f  " % ( iPt, v )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f  " % ( iPt, v ))
+    print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
         iPt =  npts/2 + ir
         v = a.GetValue(iPt)
-        print "Pt[%d]: %.2f " % ( iPt, v )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f " % ( iPt, v ))
+    print("-------------------------------------------------------------------------------------------------\n")
 
 def dump_vtk_points( pts, label=None ):
-    print "\n-------------------------------------------------------------------------------------------------"
+    print("\n-------------------------------------------------------------------------------------------------")
     npts = pts.GetNumberOfPoints()
-    if label: print label
+    if label: print(label)
     nrows = 20
     iSkip = npts/nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         pt = pts.GetPoint( iPt )
-        print "Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
+    print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
         iPt =  npts/2 + ir
         pt = pts.GetPoint( iPt )
-        print "Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] )
-    print "-------------------------------------------------------------------------------------------------\n"
+        print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
+    print("-------------------------------------------------------------------------------------------------\n")
 
 
 class ConfigMode:
@@ -250,7 +250,7 @@ class CPCPlot( DV3DPlot ):
 
     @current_subset_specs.setter
     def current_subset_specs(self, value):
-        print "Setting current_subset_specs: ", str( value )
+        print("Setting current_subset_specs: ", str( value ))
         self._current_subset_specs = value
 
 
@@ -261,7 +261,7 @@ class CPCPlot( DV3DPlot ):
 
     def getPointCloud( self, ires = -1 ):
         if ires == -1: ires = self.render_mode
-        if ( ( ires ==  ProcessMode.HighRes ) and ( self.partitioned_point_cloud <> None ) ):
+        if ( ( ires ==  ProcessMode.HighRes ) and ( self.partitioned_point_cloud != None ) ):
             return self.partitioned_point_cloud
         else:
             return  self.point_cloud_overview
@@ -311,7 +311,7 @@ class CPCPlot( DV3DPlot ):
         shift = caller.GetShiftKey()
         if not shift: return
         x, y = caller.GetEventPosition()
-        print "Executing pick."
+        print("Executing pick.")
         picker = caller.GetPicker()
         picker.Pick( x, y, 0, self.renderer )
         actor = picker.GetActor()
@@ -443,7 +443,7 @@ class CPCPlot( DV3DPlot ):
         self.render()
 
     def update_subset_specs(self, new_specs ):
-        print " $$$$$$ update_subset_specs: %s " % str( new_specs )
+        print(" $$$$$$ update_subset_specs: %s " % str( new_specs ))
         self.current_subset_specs.update( new_specs )
 
 
@@ -482,7 +482,7 @@ class CPCPlot( DV3DPlot ):
 #             self.enableSlicing()
 
     def processVariableCommand( self, args = None ):
-        print " -------------------.>> Process Variable Command: ", str( args )
+        print(" -------------------.>> Process Variable Command: ", str( args ))
         self.processThresholdRangeCommand( args )
 
     @property
@@ -546,7 +546,7 @@ class CPCPlot( DV3DPlot ):
                 self.setRenderMode( ProcessMode.LowRes )
             if self.partitioned_point_cloud:
                 self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
-            if self.process_mode <> ProcessMode.Thresholding:
+            if self.process_mode != ProcessMode.Thresholding:
                 self.enableThresholding(volumeThresholdRange)
         elif args and args[0] == "Init":
             init_range = self.point_cloud_overview.getValueRange()
@@ -598,7 +598,7 @@ class CPCPlot( DV3DPlot ):
 #             self.setRenderMode( ProcessMode.HighRes )
 #         if self.scalarRange <> None:
 #             self.point_cloud_overview.setScalarRange( self.scalarRange.getValues() )
-        if volumeThresholdRange <> None:
+        if volumeThresholdRange != None:
             dvar = self.defvar[0] if ( type(self.defvar) == list ) else self.defvar
             self.updateThresholding( dvar, volumeThresholdRange.getValue(dvar), False )
 #         bbar = self.fetchPlotButtons()
@@ -626,7 +626,7 @@ class CPCPlot( DV3DPlot ):
                 self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
         elif args and args[0] == "EndConfig":
             if self.render_mode ==  ProcessMode.LowRes:
-                print " Color Scale End Config "
+                print(" Color Scale End Config ")
                 if self.setRenderMode( ProcessMode.HighRes ):
                     pc =  self.getPointCloud()
                     pc.setScalarRange( scalarRange.getValues() )
@@ -658,7 +658,7 @@ class CPCPlot( DV3DPlot ):
         spos = args.get( 'spos', None )
         interactionState = [ 'XSlider', 'YSlider', 'ZSlider' ][self.sliceAxisIndex]
         bbar = self.getPlotButtonbar()
-        if bbar <> None:
+        if bbar != None:
             config_function = bbar.getConfigFunction( interactionState )
             if spos == None:
                 spos = config_function.value.getValue()
@@ -724,9 +724,9 @@ class CPCPlot( DV3DPlot ):
 #         self.execCurrentSlice()
 
     def shiftResolution( self, ncollections_inc, ptsize_inc ):
-        if (ncollections_inc <> 0) and ( self.partitioned_point_cloud <> None ):
+        if (ncollections_inc != 0) and ( self.partitioned_point_cloud != None ):
             self.partitioned_point_cloud.updateNumActiveCollections( ncollections_inc )
-        if ptsize_inc <> 0:
+        if ptsize_inc != 0:
             self.updatePointSize( ptsize_inc )
 
     def clearSubsetting(self):
@@ -772,7 +772,7 @@ class CPCPlot( DV3DPlot ):
 #             self.processROICommand( args[1:] )
 
     def processROICommand( self, args ):
-        print " process ROI Command: ", str( args )
+        print(" process ROI Command: ", str( args ))
         if args[0] == 'Submit':
             roi = args[1]
             self.partitioned_point_cloud.setROI( roi )
@@ -813,7 +813,7 @@ class CPCPlot( DV3DPlot ):
             resolution = arg[1]
             current_point_size = pointSize.getValue( resolution )
             new_point_size = int( round( value ) )
-            if (current_point_size <> new_point_size ):
+            if (current_point_size != new_point_size ):
 #                print " UpdateConfig, resolution = %s, new_point_size = %s " % ( str( resolution ), str( new_point_size ) )
                 pointSize.setValue(resolution, new_point_size )
                 pc = self.getPointCloud(resolution)
@@ -852,7 +852,7 @@ class CPCPlot( DV3DPlot ):
             resolution = arg[1]
             new_slice_width = arg[2].GetValue()
             sliceWidth = sliceProp.getValue( resolution )
-            if sliceWidth <> new_slice_width:
+            if sliceWidth != new_slice_width:
                 sliceProp.setValue( resolution, new_slice_width )
                 self.setRenderMode( resolution )
                 self.execCurrentSlice()
@@ -998,7 +998,7 @@ class CPCPlot( DV3DPlot ):
 #             self.processVerticalScalingCommand( [ "EndConfig" ] )
 
     def updateVerticalScaling(self):
-        print " updateVerticalScaling: ", str( self.scaling_spec )
+        print(" updateVerticalScaling: ", str( self.scaling_spec ))
         self.point_cloud_overview.generateZScaling( spec=self.scaling_spec )
         if self.partitioned_point_cloud:
             self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
@@ -1098,7 +1098,7 @@ class CPCPlot( DV3DPlot ):
         if args and args[0] == "Init":
             state = config_function.getState()
             if state: self.cfgManager.initialized = True
-            if config_function.initial_value <> None:
+            if config_function.initial_value != None:
                 config_function.setState( config_function.initial_value[0] )
             if state: self.toggleProjection( args, config_function, record=False )
         if args and (args[0] == "InitConfig") and args[1]:
@@ -1113,7 +1113,7 @@ class CPCPlot( DV3DPlot ):
             self.topo = projections.index( seleted_projection )
             self.updateProjection()
         except ValueError:
-            print>>sys.stderr, "Can't find projection: %s " % str( seleted_projection )
+            print("Can't find projection: %s " % str( seleted_projection ), file=sys.stderr)
 
     def processColorMapCommand( self, args=None ):
         colorCfg = [ self.colorMapCfg.getValue('Colormap'), self.colorMapCfg.getValue('Invert'), self.colorMapCfg.getValue('Stereo'), self.colorMapCfg.getValue('Colorbar') ]
@@ -1266,7 +1266,7 @@ class CPCPlot( DV3DPlot ):
             self.partitioned_point_cloud = vtkPartitionedPointCloud( nCollections, init_args, **args )
             self.partitioned_point_cloud.NewDataAvailable.connect( self.newDataAvailable )
             if not self.scaling_spec is None:
-                print " initCollections.generateZScaling ", str( self.scaling_spec )
+                print(" initCollections.generateZScaling ", str( self.scaling_spec ))
                 self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
 
         else:
@@ -1278,7 +1278,7 @@ class CPCPlot( DV3DPlot ):
 #        self.pointPicker.AddPickList( self.low_res_actor )
 
         if self.partitioned_point_cloud:
-            for point_cloud in  self.partitioned_point_cloud.values():
+            for point_cloud in  list(self.partitioned_point_cloud.values()):
                 self.renderer.AddActor( point_cloud.actor )
                 self.pointPicker.AddPickList( point_cloud.actor )
         else:
@@ -1289,13 +1289,13 @@ class CPCPlot( DV3DPlot ):
         self.renderer.AddActor( self.mapManager.getSphericalMap() )
 
     def reset( self, pcIndex ):
-        if not self.isValid and ( self.partitioned_point_cloud <> None ):
+        if not self.isValid and ( self.partitioned_point_cloud != None ):
             self.partitioned_point_cloud.clear( pcIndex )
             self.isValid = True
 
     def updateZRange( self, pc ):
         nlev = pc.getNLevels()
-        if nlev and (nlev <> self.nlevels):
+        if nlev and (nlev != self.nlevels):
             self.nlevels = nlev
             self.zSliceWidth = 1.0/(self.nlevels)
             self.sliceWidthSensitivity[2] = self.zSliceWidth
@@ -1306,7 +1306,7 @@ class CPCPlot( DV3DPlot ):
         self.point_cloud_overview.setPointSize( self.pointSize.getValue( ProcessMode.LowRes ) )
 
     def newDataAvailable( self, pcIndex, data_type ):
-        if ( self.partitioned_point_cloud <> None ):
+        if ( self.partitioned_point_cloud != None ):
             interactionButtons = self.getInteractionButtons()
             scalarRange = interactionButtons.getConfigFunction('ScaleColormap').value
             pc = self.partitioned_point_cloud.getPointCloud( pcIndex )
@@ -1329,8 +1329,8 @@ class CPCPlot( DV3DPlot ):
         self.getPointCloud().generateSubset( **args  )
 
     def terminate(self):
-        if ( self.partitioned_point_cloud <> None ):
-            for point_cloud in self.partitioned_point_cloud.values():
+        if ( self.partitioned_point_cloud != None ):
+            for point_cloud in list(self.partitioned_point_cloud.values()):
                 point_cloud.terminate()
 
     def setPointSize( self, point_size ) :
@@ -1341,17 +1341,17 @@ class CPCPlot( DV3DPlot ):
         dfile = var1.parent
         data_file = dfile.id if dfile else None
         for file_attribute_name in ['url', 'filename', 'file' ]:
-            if data_file <> None: break
+            if data_file != None: break
             data_file = self.plot_attributes.get( file_attribute_name, None )
-        varnames = [ getVarName( var1 ) if (data_file <> None) else var1 ]
-        if not var2 is None: varnames.append( getVarName( var2 ) if (dfile <> None) else var2 )
+        varnames = [ getVarName( var1 ) if (data_file != None) else var1 ]
+        if not var2 is None: varnames.append( getVarName( var2 ) if (dfile != None) else var2 )
         subSpace = args.get( 'axes', 'xyz' )
         grd_coords = [ None ]*5
         var_proc_op = None
         grid_file = args.get( 'grid_file', None )
         ROI = None
         zscale_parm = self.cfgManager.getParameterValue( 'VerticalScaling' )
-        zscale = float(zscale_parm.strip('[]')) if ( zscale_parm <> None ) else 0.5
+        zscale = float(zscale_parm.strip('[]')) if ( zscale_parm != None ) else 0.5
         return [ grid_file, data_file, interface, varnames, grd_coords, var_proc_op, ROI, subSpace, zscale ]
 
     def gminit(self, var1, var2, **args  ):
@@ -1361,7 +1361,7 @@ class CPCPlot( DV3DPlot ):
         self.init( init=init_args, **args )
 
     def init(self, **args ):
-        from DistributedPointCollections import kill_all_zombies
+        from .DistributedPointCollections import kill_all_zombies
         kill_all_zombies()
         init_args = args.get( 'init', None )
         n_overview_points = args.get( 'n_overview_points', 500000 )
@@ -1374,7 +1374,7 @@ class CPCPlot( DV3DPlot ):
         if ( n_subproc_points > nInputPoints ): n_subproc_points = nInputPoints
         nPartitions = min( nInputPoints / n_subproc_points, 10  )
         nCollections = min( nPartitions, n_cores-1 )
-        print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) )
+        print(" Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) ))
         self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
         self.defvar =  init_args[3]
         self.vertVar = None

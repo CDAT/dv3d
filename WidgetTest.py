@@ -58,7 +58,7 @@ position = [ 0.5, 0.5 ]
 size = [ 1.0, 1.0 ]
 # ComputeDisplayToWorld(double x, double y, double z, double worldPt[4])
 bounds = computeBounds(ren, position,size)
-print " Bounds = ", bounds
+print(" Bounds = ", bounds)
 buttonRepresentation.PlaceWidget( bounds )
 buttonWidget.SetRepresentation(buttonRepresentation)
 

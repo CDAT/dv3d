@@ -6,7 +6,7 @@ Created on Sep 18, 2013
 import sys, math
 import numpy
 import cdms2, cdutil
-from StructuredGridPlot import  PlotType
+from .StructuredGridPlot import  PlotType
 
 def isNone(obj):
     return ( id(obj) == id(None) )
@@ -59,12 +59,12 @@ class PointCollection():
         try:
             axis_order = var.getOrder()
             return axis_order.index(coord)
-        except ValueError, err:
-            print>>sys.stderr, "Can't find axis %s in axis order spec '%s' " % ( coord, axis_order )
+        except ValueError as err:
+            print("Can't find axis %s in axis order spec '%s' " % ( coord, axis_order ), file=sys.stderr)
 
     def getDataBlock( self, var ):
         iTimeIndex = self.getCoordIndex( var, 't' )
-        if iTimeIndex <> 0:  print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+        if iTimeIndex != 0:  print("Unimplemented axis order: %s " % var.getOrder(), file=sys.stderr)
         if self.lev == None:
             if len( var.shape ) == 2:
                 np_var_data_block = var[ self.iTimeStep, self.istart::self.istep ].data
@@ -81,7 +81,7 @@ class PointCollection():
                     np_var_data_block = var[ self.iTimeStep, self.istart::self.istep, : ].data
                     np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
                 else:
-                    print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+                    print("Unimplemented axis order: %s " % var.getOrder(), file=sys.stderr)
             elif len( var.shape ) == 4:
                 lev_data_arrays = []
                 for ilev in range( var.shape[1] ):
@@ -154,21 +154,21 @@ class PointCollection():
             stage_height = ( self.maxStageHeight * z_scaling )
 
             nz = len( self.lev ) if self.lev else 1
-            if height_varname and (height_varname <> self.hgt_var) and (height_varname <> 'Levels' ):
+            if height_varname and (height_varname != self.hgt_var) and (height_varname != 'Levels' ):
                 hgt_var = self.df[ height_varname ]
                 if hgt_var:
                     self.hgt_var = height_varname
                     np_hgt_var_data_block = self.getDataBlock(hgt_var).flatten()
                     if self.missing_value: np_hgt_var_data_block = numpy.ma.masked_equal( np_hgt_var_data_block, self.missing_value, False )
                     zdata = np_hgt_var_data_block.astype( numpy.float32 )
-                    print " setPointHeights: zdata shape = %s " % str( zdata.shape ); sys.stdout.flush()
+                    print(" setPointHeights: zdata shape = %s " % str( zdata.shape )); sys.stdout.flush()
                     self.vertical_bounds = ( zdata.min(), zdata.max() )
                     if self.data_height == None: self.data_height = ( self.vertical_bounds[1] - self.vertical_bounds[0] )
                     self.point_data_arrays['z'] = zdata * ( stage_height / self.data_height )
                 else:
-                    print>>sys.stderr, "Can't find height var: %s " % height_varname
+                    print("Can't find height var: %s " % height_varname, file=sys.stderr)
             else:
-                if ( z_scaling <> self.z_scaling ) or ( (height_varname <> self.hgt_var) and (height_varname == 'Levels' ) ):
+                if ( z_scaling != self.z_scaling ) or ( (height_varname != self.hgt_var) and (height_varname == 'Levels' ) ):
                     self.z_scaling = z_scaling
                     if height_varname: self.hgt_var = height_varname
                     np_points_data_list = []
@@ -237,7 +237,7 @@ class PointCollection():
                     lon = data_file( axis_ids[0], squeeze=1 )
                     lat = data_file( axis_ids[1], squeeze=1 )
             except cdms2.error.CDMSError:
-                print>>sys.stderr, "Can't find lat/lon coordinate variables in file(s)."
+                print("Can't find lat/lon coordinate variables in file(s).", file=sys.stderr)
                 return None, None
             if PlotType.validCoords( lat, lon ):
                 return  self.processCoordinates( lat, lon )
@@ -284,7 +284,7 @@ class PointCollection():
                                 lat = dset( cvar.id, squeeze=1 )
         if PlotType.validCoords( lat, lon ):
             return  self.processCoordinates( lat, lon )
-        print>>sys.stdout, "Error, Can't find grid axes!"
+        print("Error, Can't find grid axes!", file=sys.stdout)
         return None, None
 
     def setDataSlice(self, istart, **args ):
@@ -308,14 +308,14 @@ class PointCollection():
                     except: pass
                 if axis.id in lev_aliases:
                     axis.designateLevel()
-                    return grid_lev if ( grid_lev <> None ) else axis
+                    return grid_lev if ( grid_lev != None ) else axis
         return lev
 
     def stepTime( self, **args ):
         process = args.get( 'process', True )
         update_points = args.get( 'update_points', True )
         self.iTimeStep = self.iTimeStep + 1
-        print " PC_[%d/%d]: stepTime[%d/%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, self.time.shape[0], str( process ) )
+        print(" PC_[%d/%d]: stepTime[%d/%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, self.time.shape[0], str( process ) ))
         if self.iTimeStep >= self.time.shape[0]:
             self.iTimeStep = 0
         if process:
@@ -332,7 +332,7 @@ class PointCollection():
     def getProcessedVariable( self, varname, var_proc_op ):
         var = self.df[ varname ]
         if isNone( var ):
-            print>>sys.stderr, "Error, can't find variable '%s' in data file." % ( varname )
+            print("Error, can't find variable '%s' in data file." % ( varname ), file=sys.stderr)
             return None
         if var_proc_op == "anomaly_t":
             var_ave = cdutil.averager( var, axis='time' )
@@ -343,7 +343,7 @@ class PointCollection():
         self.metadata['var_units'] = getVarAttribute( self.var, [ 'units' ] )
         vars = self.df.variables
         ds_mdata = []
-        for var_item in  vars.items():
+        for var_item in  list(vars.items()):
             id = var_item[0]
             var =  var_item[1]
             name = var.long_name
@@ -370,7 +370,7 @@ class PointCollection():
         self.grid = self.var.getGrid()
         self.lev = self.getLevel(self.var)
         lon, lat = self.getLatLon( grid_coords )
-        if ( id(lon) <> id(None) ) and ( id(lat) <> id(None) ):
+        if ( id(lon) != id(None) ) and ( id(lat) != id(None) ):
             self.time = self.var.getTime()
             z_scale = 0.5
             self.missing_value = self.var.attributes.get( 'missing_value', None )
@@ -419,7 +419,7 @@ class PointCollection():
         try:
             ( self.threshold_target, rmin, rmax ) = args
         except ValueError:
-            print>>sys.stderr, "Error Unpacking thresholding data: %s " % str( args )
+            print("Error Unpacking thresholding data: %s " % str( args ), file=sys.stderr)
             return None, None, None
         vmin = None
         var_data = self.point_data_arrays.get( self.threshold_target, None).flatten()
@@ -434,9 +434,9 @@ class PointCollection():
                 try:
                     vmin = self.vrange[0] + rmin * dv
                     vmax = self.vrange[0] + rmax * dv
-                except TypeError, err:
+                except TypeError as err:
                     pass
-            if vmin <> None:
+            if vmin != None:
                 if ( self.threshold_target == 'z' ):
                     nLev = len( self.lev )
                     rave = (rmin + rmax)/2
@@ -461,7 +461,7 @@ class PointCollection():
             return vmin, vmax
         elif op == 'points':
 #            print " subproc: Process points request, args = %s " % str( args ); sys.stdout.flush()
-            if args[2] <> None:
+            if args[2] != None:
                 self.setPointHeights( height_var=args[1], z_scale=args[2] )
 
         elif op == 'timestep':

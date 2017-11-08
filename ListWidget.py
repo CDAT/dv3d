@@ -5,8 +5,8 @@ Created on May 22, 2014
 '''
 import vtk
 import numpy as np
-from ColorMapManager import *
-from ConfigurationFunctions import SIGNAL
+from .ColorMapManager import *
+from .ConfigurationFunctions import SIGNAL
 
 def getScalars( image_data, x, y ):
     comp_data = [ int( image_data.GetScalarComponentAsFloat ( x, y, 0, ic ) ) for ic in range( 4 ) ]
@@ -44,7 +44,7 @@ class ListWidget:
 
     def checkWindowSizeChange( self ):
         new_window_size = self.interactor.GetRenderWindow().GetSize()
-        if ( self.windowSize[0] <> new_window_size[0] ) or ( self.windowSize[1] <> new_window_size[1] ):
+        if ( self.windowSize[0] != new_window_size[0] ) or ( self.windowSize[1] != new_window_size[1] ):
             self.windowSize = new_window_size
             return True
         else:
@@ -52,7 +52,7 @@ class ListWidget:
 
     def updatePositions(self):
         if self.checkWindowSizeChange():
-            for button_item in self.buttons.items():
+            for button_item in list(self.buttons.items()):
                 button = button_item[0]
                 [ button_id, position, size ] = button_item[1]
                 brep = button.GetRepresentation()
@@ -68,18 +68,18 @@ class ListWidget:
 
     def show(self):
         self.visible = True
-        for button in self.buttons.keys():
+        for button in list(self.buttons.keys()):
             button.On()
 #            button.Render()
 
     def hide(self):
         self.visible = False
-        for button in self.buttons.keys():
+        for button in list(self.buttons.keys()):
             button.Off()
 
     def toggleVisibility( self, **args ):
         state = args.get( 'state', None )
-        if state <> None: self.visible = True if ( state == 0 ) else False
+        if state != None: self.visible = True if ( state == 0 ) else False
         if self.visible:
             self.hide()
         else:
@@ -179,7 +179,7 @@ class ColorbarListWidget(ListWidget):
         return image
 
 def listStateChanged( obj, event ):
-    print " listStateChanged: ", str( event )
+    print(" listStateChanged: ", str( event ))
 
 if __name__ == '__main__':
     renderer = vtk.vtkRenderer()

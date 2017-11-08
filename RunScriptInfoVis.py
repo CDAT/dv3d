@@ -5,10 +5,10 @@ Created on Feb 4, 2014
 '''
 
 import os, os.path, sys, argparse, time, multiprocessing
-from DistributedPointCollections import kill_all_zombies
-from Application import DV3DApp
-from MultiVarPointCollection import InterfaceType
-from ConfigurationFunctions import PlotType
+from .DistributedPointCollections import kill_all_zombies
+from .Application import DV3DApp
+from .MultiVarPointCollection import InterfaceType
+from .ConfigurationFunctions import PlotType
 
 parser = argparse.ArgumentParser(description='DV3D Point Cloud Viewer')
 parser.add_argument( 'PATH' )
@@ -70,7 +70,7 @@ ncores = multiprocessing.cpu_count()
 g.init( init = ( grid_file, data_file, interface, varnames, grid_coords, var_proc_op, roi, 'xyz' ), n_overview_points=n_overview_points, n_cores=ncores, blocking=True  ) #, plot_type = PlotType.List  )
 
 rw = g.getRenderWindow()
-print "Got render window" ; sys.stdout.flush()
+print("Got render window") ; sys.stdout.flush()
 
 g.start()
 

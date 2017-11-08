@@ -8,7 +8,7 @@ from collections import OrderedDict
 import numpy.ma as ma
 import numpy as np
 EnableMemoryLogging = False
-from DV3DPlot import  PlotType
+from .DV3DPlot import  PlotType
 # from vtk.util.misc import vtkGetDataRoot
 # packagePath = os.path.dirname( __file__ )
 import cdms2, cdtime, cdutil, MV2
@@ -38,7 +38,7 @@ class MemoryLogger:
         self.enabled = enabled
 
     def close(self):
-        if self.logfile <> None:
+        if self.logfile != None:
             self.logfile.close( )
             self.logfile = None
 
@@ -52,9 +52,9 @@ class MemoryLogger:
             try:
                 mem_usage_MB = float( ps_vals[5] ) / 1024.0
                 mem_usage_GB = mem_usage_MB / 1024.0
-            except ValueError, err:
-                print>>sys.stderr, "Error parsing psout: ", str(err)
-                print>>sys.stderr, str(psout)
+            except ValueError as err:
+                print("Error parsing psout: ", str(err), file=sys.stderr)
+                print(str(psout), file=sys.stderr)
                 return
 
             if self.logfile == None:
@@ -102,7 +102,7 @@ def splitGridSpecs( gridSpecs ):
     return slices
 
 def getCompTime( timeString ):
-    print " >> GetCompTime: ", timeString
+    print(" >> GetCompTime: ", timeString)
     timeStringFields = timeString.strip("'").split(' ')
     date = timeStringFields[0].split('-')
     if len( timeStringFields ) == 1:
@@ -127,8 +127,8 @@ def getRelativeTimeValues( dataset ):
     rv = []
     dt = 0.0
     time_units = None
-    if dataset <> None:
-        dims = dataset.axes.keys()
+    if dataset != None:
+        dims = list(dataset.axes.keys())
         for dim in dims:
             axis = dataset.getAxis( dim )
             if axis.isTime():
@@ -170,7 +170,7 @@ class CDMSDatasetRecord():
 #         self.cachedFileVariables = {}
 
     def getLevAxis(self ):
-        for axis in self.dataset.axes.values():
+        for axis in list(self.dataset.axes.values()):
             if axis.isLevel() or PlotType.isLevelAxis( axis ): return axis
         return None
 
@@ -210,8 +210,8 @@ class CDMSDatasetRecord():
                 refFile = getFullPath( refFileRelPath )
                 f=cdms2.open( refFile )
                 refGrid=f[refVar].getGrid()
-            except cdms2.error.CDMSError, err:
-                print>>sys.stderr, " --- Error[1] opening dataset file %s: %s " % ( refFile, str( err ) )
+            except cdms2.error.CDMSError as err:
+                print(" --- Error[1] opening dataset file %s: %s " % ( refFile, str( err ) ), file=sys.stderr)
         if not refGrid: refGrid = varData.getGrid()
         if not refGrid:
             mb = QtGui.QMessageBox.warning( None, "DV3D Error", "CDAT is unable to create a grid for this dataset."  )
@@ -249,7 +249,7 @@ class CDMSDatasetRecord():
                 varLatInt = latAxis.mapIntervalExt( latBounds )
                 args1['lon'] = slice( varLonInt[0], varLonInt[1], decimationFactor )
                 args1['lat'] = slice( varLatInt[0], varLatInt[1], decimationFactor )
-                print " ---- Decimate(%d) grid %s: varLonInt=%s, varLatInt=%s, lonSlice=%s, latSlice=%s" % ( decimationFactor, str(gridBounds), str(varLonInt), str(varLatInt), str(args1['lon']), str(args1['lat']) )
+                print(" ---- Decimate(%d) grid %s: varLonInt=%s, varLatInt=%s, lonSlice=%s, latSlice=%s" % ( decimationFactor, str(gridBounds), str(varLonInt), str(varLatInt), str(args1['lon']), str(args1['lat']) ))
 #        args1['squeeze'] = 1
         start_t = time.time()
 
@@ -312,8 +312,8 @@ class CDMSDatasetRecord():
                 cdmsFile = getFullPath( relFilePath )
                 f=cdms2.open( cdmsFile )
                 refGrid=f[refVar].getGrid()
-            except cdms2.error.CDMSError, err:
-                print>>sys.stderr, " --- Error[2] opening dataset file %s: %s " % ( cdmsFile, str( err ) )
+            except cdms2.error.CDMSError as err:
+                print(" --- Error[2] opening dataset file %s: %s " % ( cdmsFile, str( err ) ), file=sys.stderr)
         if not refGrid: refGrid = varData.getGrid()
         if not refGrid:
             mb = QtGui.QMessageBox.warning( None, "DV3D Error", "CDAT is unable to create a grid for this dataset."  )
@@ -335,13 +335,13 @@ class CDMSDatasetRecord():
         if decimation: decimationFactor =  decimation[0]+1
         try:
             nts = self.dataset['time'].shape[0]
-            if ( timeIndex <> None ) and  useTimeIndex:
+            if ( timeIndex != None ) and  useTimeIndex:
                 args1['time'] = slice( timeIndex, timeIndex+1, 1 )
             elif timeValue and (nts>1):
                 args1['time'] = timeValue
         except: pass
 
-        if lonBounds <> None:
+        if lonBounds != None:
             if (lonBounds[1] - lonBounds[0]) < 355.0:
                 if lonBounds[0] < LonMin: lonBounds[0] = LonMin
                 if lonBounds[1] > LonMax: lonBounds[1] = LonMax
@@ -357,7 +357,7 @@ class CDMSDatasetRecord():
                 varLonInt = varGrid.getLongitude().mapIntervalExt( [ lonBounds[0], lonBounds[1] ] )
                 args1['lon'] = slice( varLonInt[0], varLonInt[1], decimationFactor )
 
-        if latBounds <> None:
+        if latBounds != None:
             if decimationFactor == 1:
                 args1['lat'] = latBounds[0] if ( len( latBounds ) == 1 ) else latBounds
             else:
@@ -371,7 +371,7 @@ class CDMSDatasetRecord():
 
         levBounds = args.get( 'lev', None )
         if ( (referenceVar==None) or ( ( referenceVar[0] == self.cdmsFile ) and ( referenceVar[1] == varName ) ) ) and ( decimationFactor == 1):
-            if levBounds <> None:
+            if levBounds != None:
                 args1['lev'] =  levBounds[0] if ( len( levBounds ) == 1 ) else levBounds
             else:
                 levBounds = self.getLevBounds( referenceLev )
@@ -388,13 +388,13 @@ class CDMSDatasetRecord():
 #            time_values, dt, time_units = getRelativeTimeValues ( cdms2.open( self.cdmsFile ) )
 
             vc = cdutil.VariableConditioner( source=self.cdmsFile, var=varName,  cdmsKeywords=args1, weightedGridMaker=gridMaker )
-            print " regridded_var_slice(%s:%s): %s " % ( self.dataset.id, varName, str( args1 ) )
+            print(" regridded_var_slice(%s:%s): %s " % ( self.dataset.id, varName, str( args1 ) ))
             regridded_var_slice = vc.get( returnTuple=0 )
 #            if (referenceLev <> None) and ( referenceLev.shape[0] <> currentLevel.shape[0] ):
 #                regridded_var_slice = regridded_var_slice.pressureRegrid( referenceLev )
 
             args2 = { 'order' : order, 'squeeze' : 1 }
-            if levBounds <> None:
+            if levBounds != None:
                 args2['lev'] = levBounds[0] if ( len( levBounds ) == 1 ) else levBounds
             else:
                 levBounds = self.getLevBounds( currentLevel )
@@ -504,13 +504,13 @@ class CDMSDataset:
         return self.variableRecs[id]
 
     def getVarRecValues( self ):
-        return self.variableRecs.values()
+        return list(self.variableRecs.values())
 
     def getVarRecKeys( self ):
-        return self.variableRecs.keys()
+        return list(self.variableRecs.keys())
 
     def setRoi( self, roi ):
-        if roi <> None:
+        if roi != None:
             self.gridBounds = list(roi)
 
     def setBounds( self, timeRange, time_units, roi, zscale, decimation ):
@@ -554,23 +554,23 @@ class CDMSDataset:
                     if variable:
                         self.referenceVariable = "*".join( [ dsid, dsetRec.cdmsFile, varName ] )
                         self.referenceLev = variable.getLevel()
-        except Exception, err:
-            print>>sys.stderr, " Error in setReferenceVariable: ", str(err)
+        except Exception as err:
+            print(" Error in setReferenceVariable: ", str(err), file=sys.stderr)
 
     def getReferenceDsetId(self):
-        if self.referenceVariable == None: return self.datasetRecs.keys()[0]
+        if self.referenceVariable == None: return list(self.datasetRecs.keys())[0]
         return self.referenceVariable.split("*")[0]
 
     def getStartTime(self):
         return cdtime.reltime( float( self.timeRange[2] ), self.referenceTimeUnits )
 
     def close( self ):
-        for dsetRec in self.datasetRecs.values(): dsetRec.dataset.close()
+        for dsetRec in list(self.datasetRecs.values()): dsetRec.dataset.close()
 
     def addTransientVariable( self, varName, variable, ndim = None ):
         if varName in self.transientVariables:
             var = self.transientVariables[ varName ]
-            if id(var) <> id(variable): print>>sys.stderr, "Warning, transient variable %s already exists in dataset, overwriting!" % ( varName )
+            if id(var) != id(variable): print("Warning, transient variable %s already exists in dataset, overwriting!" % ( varName ), file=sys.stderr)
             else: return
         self.transientVariables[ varName ] = variable
 
@@ -578,7 +578,7 @@ class CDMSDataset:
         return self.transientVariables.get( varName, None )
 
     def getTransientVariableNames( self ):
-        return self.transientVariables.keys()
+        return list(self.transientVariables.keys())
 
     def addOutputVariable( self, varName, variable, ndim = None ):
         self.outputVariables[ varName ] = variable
@@ -587,7 +587,7 @@ class CDMSDataset:
         return self.outputVariables.get( varName, None )
 
     def getOutputVariableNames( self ):
-        return self.outputVariables.keys()
+        return list(self.outputVariables.keys())
 
     def __getitem__(self, dsid ):
         return self.datasetRecs.get( dsid, None )
@@ -608,7 +608,7 @@ class CDMSDataset:
 #            return self.NullVariable
 
     def clearDataCache( self ):
-        for dsetRec in self.datasetRecs.values(): dsetRec.clearDataCache()
+        for dsetRec in list(self.datasetRecs.values()): dsetRec.clearDataCache()
 
 #    def clearVariableCache( self, varName ):
 #        cachedData = self.cachedTransVariables.get( varName, None )
@@ -622,8 +622,8 @@ class CDMSDataset:
             tvar = self.transientVariables[ varName ]
             del self.transientVariables[ varName]
             del tvar
-        except Exception, err:
-            print>>sys.stderr, "Error releasing tvar: ", str(err)
+        except Exception as err:
+            print("Error releasing tvar: ", str(err), file=sys.stderr)
 
     def getVarDataTimeSlice( self, dsid, varName, timeValue ):
         """
@@ -636,14 +636,14 @@ class CDMSDataset:
                 rv = dsetRec.getVarDataTimeSlice( varName, timeValue, self.gridBounds, self.decimation, self.referenceVariable, self.referenceLev )
         if (rv.id == "NULL") and (varName in self.transientVariables):
             rv = self.transientVariables[ varName ]
-        if rv.id <> "NULL":
+        if rv.id != "NULL":
             return rv
 #            current_grid = rv.getGrid()
 #            if ( gridMaker == None ) or SameGrid( current_grid, gridMaker.grid ): return rv
 #            else:
 #                vc = cdutil.VariableConditioner( source=rv, weightedGridMaker=gridMaker )
 #                return vc.get( returnTuple=0 )
-        print>>sys.stderr, "Error: can't find time slice variable %s in dataset" % varName
+        print("Error: can't find time slice variable %s in dataset" % varName, file=sys.stderr)
         return rv
 
     def getVarDataCube( self, dsid, varName, timeValues, levelValues = None, **kwargs ):
@@ -657,7 +657,7 @@ class CDMSDataset:
             if dsetRec:
                 if varName in dsetRec.dataset.variables:
                     args = { 'time':timeValues, 'lev':levelValues, 'refVar':self.referenceVariable, 'refLev':self.referenceLev }
-                    for item in kwargs.iteritems(): args[ item[0] ] = item[1]
+                    for item in kwargs.items(): args[ item[0] ] = item[1]
                     if self.gridBounds:
                         args['lon'] = [self.gridBounds[0],self.gridBounds[2]]
                         args['lat'] = [self.gridBounds[1],self.gridBounds[3]]
@@ -665,7 +665,7 @@ class CDMSDataset:
             elif varName in self.getTransientVariableNames():
                 tvar = self.getTransientVariable( varName )
                 args = { 'time':timeValues, 'lev':levelValues }
-                for item in kwargs.iteritems(): args[ item[0] ] = item[1]
+                for item in kwargs.items(): args[ item[0] ] = item[1]
                 if self.gridBounds:
                     args['lon'] = [self.gridBounds[0],self.gridBounds[2]]
                     args['lat'] = [self.gridBounds[1],self.gridBounds[3]]
@@ -673,7 +673,7 @@ class CDMSDataset:
         if (rv.id == "NULL") and (varName in self.outputVariables):
             rv = self.outputVariables[ varName ]
         if rv.id == "NULL":
-            print>>sys.stderr, "Error: can't find time slice data cube for variable %s in dataset" % varName
+            print("Error: can't find time slice data cube for variable %s in dataset" % varName, file=sys.stderr)
         memoryLogger.log("End getVarDataCube")
         return rv
 
@@ -721,7 +721,7 @@ class CDMSDataset:
             order = 'xyz' if levaxis is not None else 'xy'
         try:
             nts = self.timeRange[1]
-            if ( timeIndex <> None ) and  useTimeIndex:
+            if ( timeIndex != None ) and  useTimeIndex:
                 args1['time'] = slice( timeIndex, timeIndex+1 )
             elif timeValue and (nts>1):
                 args1['time'] = timeValue
@@ -758,8 +758,8 @@ class CDMSDataset:
 
         try:
             rv = transVar( **args1 )
-        except Exception, err:
-            print>>sys.stderr, "Error Reading Variable, args = ", str(args1)
+        except Exception as err:
+            print("Error Reading Variable, args = ", str(args1), file=sys.stderr)
             traceback.print_exc()
             return CDMSDataset.NullVariable
 
@@ -805,7 +805,7 @@ class CDMSDataset:
 
     def addDatasetRecord( self, dsetId, relFilePath ):
         cdmsDSet = self.datasetRecs.get( dsetId, None )
-        if (cdmsDSet <> None) and (cdmsDSet.cdmsFile == relFilePath):
+        if (cdmsDSet != None) and (cdmsDSet.cdmsFile == relFilePath):
             return cdmsDSet
         try:
             relFilePath = relFilePath.strip()
@@ -814,13 +814,13 @@ class CDMSDataset:
                 dataset = cdms2.open( cdmsFile )
                 cdmsDSet = CDMSDatasetRecord( dsetId, dataset, cdmsFile )
                 self.datasetRecs[ dsetId ] = cdmsDSet
-        except Exception, err:
-            print>>sys.stderr, " --- Error[3] opening dataset file %s: %s " % ( cdmsFile, str( err ) )
+        except Exception as err:
+            print(" --- Error[3] opening dataset file %s: %s " % ( cdmsFile, str( err ) ), file=sys.stderr)
         return cdmsDSet
 
     def getVariableList( self, ndims ):
         vars = []
-        for dsetRec in self.datasetRecs.values():
+        for dsetRec in list(self.datasetRecs.values()):
             for var in dsetRec.dataset.variables:
                 vardata = dsetRec.dataset[var]
                 var_ndim = getVarNDim( vardata )
@@ -828,7 +828,7 @@ class CDMSDataset:
         return vars
 
     def getDsetId(self):
-        rv = '-'.join( self.datasetRecs.keys() )
+        rv = '-'.join( list(self.datasetRecs.keys()) )
         return rv
 
 class SerializedInterfaceSpecs:
@@ -837,7 +837,7 @@ class SerializedInterfaceSpecs:
         self.inputs = {}
         self.cells = []
         self.configParms = None
-        if serializedConfiguration and (serializedConfiguration <> 'None'):
+        if serializedConfiguration and (serializedConfiguration != 'None'):
             self.parseInputSpecs( serializedConfiguration )
 
     def parseInputSpecs( self, serializedConfiguration ):
@@ -868,14 +868,14 @@ class SerializedInterfaceSpecs:
                         axes = gridInputSpecs[iVar].split('!')[1]
                         self.addInput( ("Input%d" % iVar), fileId, fileName, varName, axes )
             else:
-                print>>sys.stderr, " ERROR: Number of Files and number of Variables do not match."
+                print(" ERROR: Number of Files and number of Variables do not match.", file=sys.stderr)
         for iCell in range( len(cellInputSpecs) ):
             cellMetadata = cellInputSpecs[iCell].split('!')
             if len( cellMetadata ) > 1: self.cells.append( ( cellMetadata[0], cellMetadata[1] ) )
 
 
     def addInput(self, inputName, fileId, fileName, variableName, axes ):
-        print " --- AddInput: ", inputName, fileId, fileName, variableName, axes
+        print(" --- AddInput: ", inputName, fileId, fileName, variableName, axes)
         relFilePath = getHomeRelativePath( fileName )
         self.inputs[ inputName ] = ( fileId, relFilePath, variableName, axes )
 
@@ -886,7 +886,7 @@ class SerializedInterfaceSpecs:
         inputName = args.get( 'name', None )
         if not inputName:
             inputIndex = args.get( 'index', 0 )
-            keys = self.inputs.keys()
+            keys = list(self.inputs.keys())
             if len(keys) > inputIndex:
                 keys.sort()
                 inputName = keys[inputIndex]
@@ -904,7 +904,7 @@ class StructuredFileReader:
         start_time, end_time, min_dt  = -float('inf'), float('inf'), float('inf')
         self.roi = [ 0.0, -90.0, 360.0, 90.0 ]
         for gridSpec in self.gridSpecs:
-            print " -- GridSpec: ", gridSpec
+            print(" -- GridSpec: ", gridSpec)
             gridFields = gridSpec.split('=')
             if len( gridFields ) == 2:
                 type = gridFields[0].strip()
@@ -930,7 +930,7 @@ class StructuredFileReader:
                 dataset = cdms2.open( cdmsFile )
                 dataset_list.append( dataset )
             except:
-                print "Error opening dataset: %s" % str(cdmsFile)
+                print("Error opening dataset: %s" % str(cdmsFile))
         for dataset in dataset_list:
             time_values, dt, time_units = getRelativeTimeValues ( dataset )
             if time_values:
@@ -950,7 +950,7 @@ class StructuredFileReader:
            nTS = 1
         else: nTS = int( ( ( end_time - start_time ) / min_dt ) + 0.0001 )
         self.timeRange = [ 0, nTS, start_time, min_dt ]
-        print "Compute TimeRange From Specs: ", str( [ start_time, end_time, min_dt ] ), str( self.timeRange )
+        print("Compute TimeRange From Specs: ", str( [ start_time, end_time, min_dt ] ), str( self.timeRange ))
 
 
     def execute(self, **args ):
@@ -990,7 +990,7 @@ class StructuredFileReader:
 #                print " ** decimation: ", str( decimation )
 #                print " ________________________________________________________ "
                 self.datasetMap = deserializeFileMap( getItem( dsMapData ) )
-                dsKeys = self.datasetMap.keys()
+                dsKeys = list(self.datasetMap.keys())
                 for iVar in range( len(self.varSpecs) ):
                     iDset = 0 if ( len( dsKeys ) == 1 ) else iVar
                     varSpec = "%s*%s" % ( dsKeys[ iDset ], self.varSpecs[iVar] )

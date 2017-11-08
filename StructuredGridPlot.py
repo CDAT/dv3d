@@ -5,11 +5,11 @@ Created on Apr 23, 2014
 '''
 
 import vtk, sys, os
-from ColorMapManager import *
-from Shapefile import shapeFileReader
-from StructuredVariableReader import StructuredDataReader
-from DV3DPlot import *
-from MapManager import MapManager
+from .ColorMapManager import *
+from .Shapefile import shapeFileReader
+from .StructuredVariableReader import StructuredDataReader
+from .DV3DPlot import *
+from .MapManager import MapManager
 
 class StructuredGridPlot(DV3DPlot):
 
@@ -164,7 +164,7 @@ class StructuredGridPlot(DV3DPlot):
             spacing = input.GetSpacing()
             ix, iy, iz = spacing
             sz = zscale_data[0]
-            if iz <> sz:
+            if iz != sz:
     #            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
                 input.SetSpacing( ix, iy, sz )
                 input.Modified()
@@ -193,7 +193,7 @@ class StructuredGridPlot(DV3DPlot):
     def input( self, input_index = 0 ):
         plotButtons = self.getInteractionButtons()
         cf = plotButtons.getConfigFunction('VerticalScaling')
-        if cf <> None:
+        if cf != None:
             zscale_data = cf.value.getValues()
             input = self.setInputZScale( zscale_data, input_index  )
         else:
@@ -249,12 +249,12 @@ class StructuredGridPlot(DV3DPlot):
         return ispec.scalarRange
 
     def basemapLinesVisibilityOn(self):
-        for actor_list in self.shapefilePolylineActors.values():
+        for actor_list in list(self.shapefilePolylineActors.values()):
             for actor in actor_list:
                 if actor: actor.VisibilityOn()
 
     def basemapLinesVisibilityOff(self):
-        for actor_list in self.shapefilePolylineActors.values():
+        for actor_list in list(self.shapefilePolylineActors.values()):
             for actor in actor_list:
                 if actor: actor.VisibilityOff()
 
@@ -300,7 +300,7 @@ class StructuredGridPlot(DV3DPlot):
                 selected_polys.GetProperty().SetLineWidth( npixels )
             self.render()
         except IndexError:
-            print>>sys.stderr, " setBasemapLineSpecs: Density too large: %d " % density
+            print(" setBasemapLineSpecs: Density too large: %d " % density, file=sys.stderr)
 
     def setBasemapCoastlineLineSpecs( self, value, **args ):
         self.setBasemapLineSpecs('coastline', value )
@@ -371,7 +371,7 @@ class StructuredGridPlot(DV3DPlot):
         args['units'] = ispec.units
         self.buildConfigurationButton()
         self.buttonBarHandler.initializeConfigurations( **args )
-        for plotItem in self.plotConstituents.items():
+        for plotItem in list(self.plotConstituents.items()):
             if self.isConstituentConfigEnabled(plotItem[0]):
                 ispec.addMetadata( { '-'.join( [ 'colormap', plotItem[0] ] ) : self.getColormapSpec(plotItem[0]), 'orientation' : self.iOrientation } )
 #        self.updateSliceOutput()
@@ -636,7 +636,7 @@ class StructuredGridPlot(DV3DPlot):
 
     def gminit( self, var1, var2, **args ):
         var_list = [ var1 ]
-        if id(var2) <> id(None): var_list.append( var2 )
+        if id(var2) != id(None): var_list.append( var2 )
         self.variable_reader = StructuredDataReader( vars=var_list, otype=self.type, **args )
         self.variable_reader.execute( )
         if "cm" in args:
@@ -658,7 +658,7 @@ class StructuredGridPlot(DV3DPlot):
         self.updateTextDisplay( None, True )
 
     def updateTextDisplay( self, text=None, render=False ):
-        if text <> None:
+        if text != None:
             metadata = self.getMetadata()
             var_name = metadata.get( 'var_name', '')
             var_units = metadata.get( 'var_units', '')

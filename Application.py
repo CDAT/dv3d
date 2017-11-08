@@ -4,11 +4,11 @@ Created on May 13, 2014
 @author: tpmaxwel
 '''
 import cdms2, sys
-from PointCloudViewer import CPCPlot
+from .PointCloudViewer import CPCPlot
 #from VolumeViewer import VolumePlot
-from SliceViewer import SlicePlot
-from RectilinearGridPlot import RectGridPlot
-from ConfigurationFunctions import PlotType
+from .SliceViewer import SlicePlot
+from .RectilinearGridPlot import RectGridPlot
+from .ConfigurationFunctions import PlotType
 
 def getPlotFromVar( var, **args ):
     grid_metadata = var.getGrid()
@@ -39,16 +39,16 @@ class DV3DApp:
 #             self.plot.init( **args  )
 
     def update( self, tmpl ):
-        if self.plot <> None:
+        if self.plot != None:
             self.plot.updateModule()
             self.plot.initCamera()
 
     def onClosing(self, cell ):
-        if self.plot <> None:
+        if self.plot != None:
             self.plot.onClosing( cell )
 
     def applyAction( self, action ):
-        if self.plot <> None:
+        if self.plot != None:
             self.plot.applyAction( action )
 
     def setAnimationStepper( self, stepper ):
@@ -96,5 +96,5 @@ class DV3DApp:
 
 if __name__ == '__main__':
 
-     from DistributedPointCollections import kill_all_zombies
+     from .DistributedPointCollections import kill_all_zombies
      kill_all_zombies()

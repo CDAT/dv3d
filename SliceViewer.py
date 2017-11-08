@@ -11,10 +11,10 @@ Created on Apr 23, 2014
 '''
 
 import sys, vtk, cdms2, traceback, os, cdtime
-from ColorMapManager import *
-from ImagePlaneWidget import ImagePlaneWidget
-from DistributedPointCollections import kill_all_zombies
-from StructuredGridPlot import  *
+from .ColorMapManager import *
+from .ImagePlaneWidget import ImagePlaneWidget
+from .DistributedPointCollections import kill_all_zombies
+from .StructuredGridPlot import  *
 
 class SlicePlot(StructuredGridPlot):
 
@@ -137,7 +137,7 @@ class SlicePlot(StructuredGridPlot):
 
 
     def clearReferrents(self):
-        print " **************************************** VolumeSlicer:clearReferrents, id = %d  **************************************** " % self.moduleID
+        print(" **************************************** VolumeSlicer:clearReferrents, id = %d  **************************************** " % self.moduleID)
         sys.stdout.flush()
         del self.planeWidgetX
         del self.planeWidgetY
@@ -155,7 +155,7 @@ class SlicePlot(StructuredGridPlot):
             self.contourLineMapperer = None
         ispec = self.getInputSpec( 0 )
         input0 = ispec.input()
-        print " VolumeSlicer: Input refs = %d " % input0.GetReferenceCount()
+        print(" VolumeSlicer: Input refs = %d " % input0.GetReferenceCount())
         sys.stdout.flush()
 
 
@@ -166,7 +166,7 @@ class SlicePlot(StructuredGridPlot):
         return self.generateContours
 
     def setContourDensity( self, ctf_data, **args ):
-        if self.NumContours <> ctf_data[1]:
+        if self.NumContours != ctf_data[1]:
             self.NumContours = ctf_data[1]
             self.updateContourDensity()
 
@@ -175,7 +175,7 @@ class SlicePlot(StructuredGridPlot):
 
     def setZScale( self, zscale_data, **args ):
         self.setInputZScale( zscale_data, **args )
-        if self.planeWidgetX <> None:
+        if self.planeWidgetX != None:
             primaryInput = self.input()
             bounds = list( primaryInput.GetBounds() )
             if not self.planeWidgetX.MatchesBounds( bounds ):
@@ -186,7 +186,7 @@ class SlicePlot(StructuredGridPlot):
     def setInputZScale( self, zscale_data, **args  ):
         StructuredGridPlot.setInputZScale( self, zscale_data, **args  )
         ispec = self.getInputSpec(  1 )
-        if (ispec <> None) and (ispec.input() <> None):
+        if (ispec != None) and (ispec.input() != None):
             contourInput = ispec.input()
             ix, iy, iz = contourInput.GetSpacing()
             sz = zscale_data[1]
@@ -224,21 +224,21 @@ class SlicePlot(StructuredGridPlot):
 
     def enableVisualizationInteraction(self):
 #        print>>sys.stderr, "enable Visualization Interaction"
-        if self.planeWidgetX <> None: self.planeWidgetX.EnableInteraction()
-        if self.planeWidgetY <> None:self.planeWidgetY.EnableInteraction()
-        if self.planeWidgetZ <> None:self.planeWidgetZ.EnableInteraction()
+        if self.planeWidgetX != None: self.planeWidgetX.EnableInteraction()
+        if self.planeWidgetY != None:self.planeWidgetY.EnableInteraction()
+        if self.planeWidgetZ != None:self.planeWidgetZ.EnableInteraction()
 
     def disableVisualizationInteraction(self):
 #        print>>sys.stderr, "disable Visualization Interaction"
-        if self.planeWidgetX <> None: self.planeWidgetX.DisableInteraction()
-        if self.planeWidgetY <> None:self.planeWidgetY.DisableInteraction()
-        if self.planeWidgetZ <> None:self.planeWidgetZ.DisableInteraction()
+        if self.planeWidgetX != None: self.planeWidgetX.DisableInteraction()
+        if self.planeWidgetY != None:self.planeWidgetY.DisableInteraction()
+        if self.planeWidgetZ != None:self.planeWidgetZ.DisableInteraction()
 
     def updatingColormap( self, cmap_index, colormapManager ):
         if cmap_index == 0:
-            if self.planeWidgetX <> None: self.planeWidgetX.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetY <> None: self.planeWidgetY.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetZ <> None: self.planeWidgetZ.SetTextureInterpolate( colormapManager.smoothColormap )
+            if self.planeWidgetX != None: self.planeWidgetX.SetTextureInterpolate( colormapManager.smoothColormap )
+            if self.planeWidgetY != None: self.planeWidgetY.SetTextureInterpolate( colormapManager.smoothColormap )
+            if self.planeWidgetZ != None: self.planeWidgetZ.SetTextureInterpolate( colormapManager.smoothColormap )
             self.updateModule()
 
     def getPlaneWidget( self, plane ):
@@ -269,7 +269,7 @@ class SlicePlot(StructuredGridPlot):
  #       self.intersectInputExtents()
         contour_ispec = None # self.getInputSpec(  1 )
 
-        contourInput = contour_ispec.input() if contour_ispec <> None else None
+        contourInput = contour_ispec.input() if contour_ispec != None else None
         primaryInput = self.input()
         md = self.getInputSpec().getMetadata()
         self.latLonGrid = md.get( 'latLonGrid', True )
@@ -283,7 +283,7 @@ class SlicePlot(StructuredGridPlot):
         dataType = primaryInput.GetScalarTypeAsString()
         bounds = list(primaryInput.GetBounds())
         origin = primaryInput.GetOrigin()
-        if (dataType <> 'float') and (dataType <> 'double'):
+        if (dataType != 'float') and (dataType != 'double'):
              self.setMaxScalarValue( primaryInput.GetScalarType() )
 #        print "Data Type = %s, range = (%f,%f), extent = %s, origin = %s, bounds=%s, slicePosition=%s" % ( dataType, self.rangeBounds[0], self.rangeBounds[1], str(self.input().GetWholeExtent()), str(origin), str(bounds), str(self.slicePosition)  )
 
@@ -341,7 +341,7 @@ class SlicePlot(StructuredGridPlot):
         self.updateOpacity()
         self.setColormap( [ 'jet', 1, 0, 0 ] )
 
-        if (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
+        if (contour_ispec != None) and (contour_ispec.input() != None) and (self.contours == None):
             rangeBounds = self.getRangeBounds(1)
             colormapManager = self.getColormapManager( index=1 )
             self.generateContours = True
@@ -402,14 +402,14 @@ class SlicePlot(StructuredGridPlot):
 
             # replace outlier numbers
             d = ovar.data
-            d[d==1e+20] = d[d<>1e+20].max()
+            d[d==1e+20] = d[d!=1e+20].max()
 
             img = vtkUtil.vtkImageImportFromArray()
             img.SetArray(ovar.data)
             img.Update()
 
         except Exception:
-            print>>sys.stderr, "Error building Outline Map"
+            print("Error building Outline Map", file=sys.stderr)
             traceback.print_exc()
             return None
 
@@ -427,16 +427,16 @@ class SlicePlot(StructuredGridPlot):
     def updateModule(self, **args ):
         primaryInput = self.input()
         contour_ispec = self.getInputSpec(  1 )
-        contourInput = contour_ispec.input() if contour_ispec <> None else None
-        if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput, contourInput )
-        if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput, contourInput )
-        if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput )
+        contourInput = contour_ispec.input() if contour_ispec != None else None
+        if self.planeWidgetX != None: self.planeWidgetX.SetInput( primaryInput, contourInput )
+        if self.planeWidgetY != None: self.planeWidgetY.SetInput( primaryInput, contourInput )
+        if self.planeWidgetZ != None: self.planeWidgetZ.SetInput( primaryInput, contourInput )
         if self.baseMapActor: self.baseMapActor.SetVisibility( int( self.enableBasemap ) )
         self.render()
 #        self.set3DOutput()
 
     def TestObserver( self, caller=None, event = None ):
-        print " Volume Slicer TestObserver: event = %s, " % ( event )
+        print(" Volume Slicer TestObserver: event = %s, " % ( event ))
 
     def getLayerColor( self, type ):
         if type == 'coastline':
@@ -534,7 +534,7 @@ class SlicePlot(StructuredGridPlot):
             contourLineActor.SetOrientation(90,0,90)
 
     def updateContourActorOrientations( self ):
-        for contourLineActorItem in self.contourLineActors.items():
+        for contourLineActorItem in list(self.contourLineActors.items()):
             if contourLineActorItem[1].GetVisibility( ):
                 self.setContourActorOrientation( contourLineActorItem[0], contourLineActorItem[1] )
         self.render()
@@ -555,7 +555,7 @@ class SlicePlot(StructuredGridPlot):
 
 
     def setVisibleContour( self, iAxis ):
-        for contourLineActorItem in self.contourLineActors.items():
+        for contourLineActorItem in list(self.contourLineActors.items()):
             if iAxis == contourLineActorItem[0]:    contourLineActorItem[1].VisibilityOn( )
             else:                                   contourLineActorItem[1].VisibilityOff( )
 

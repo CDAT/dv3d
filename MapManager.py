@@ -103,7 +103,7 @@ class MapManager:
 #            data_origin = self.input().GetOrigin() if self.input() else [ 0, 0, 0 ]
 
             if self.world_cut == -1:
-                if  (self.roi <> None):
+                if  (self.roi != None):
                     if self.roi_size[0] > 180:
                         self.ComputeCornerPosition()
                         self.world_cut = self.NormalizeMapLon( self.x0 )
@@ -155,7 +155,7 @@ class MapManager:
         self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.05 )
         self.baseMapActor.SetVisibility( True )
         self.sphereActor.SetVisibility( False )
-        print "Positioning map at location %s" % ( str( ( self.x0, self.y0) )  )
+        print("Positioning map at location %s" % ( str( ( self.x0, self.y0) )  ))
 
     def setSphereVisibility( self ):
         self.baseMapActor.SetVisibility( False )

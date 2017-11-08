@@ -38,7 +38,7 @@ class PlotType:
 
     @classmethod
     def validCoords( cls, lat, lon ):
-        return ( id(lat) <> id(None) ) and ( id(lon) <> id(None) )
+        return ( id(lat) != id(None) ) and ( id(lon) != id(None) )
 
     @classmethod
     def isLevelAxis( cls, pid ):
@@ -50,7 +50,7 @@ class PlotType:
 
     @classmethod
     def getPointsLayout( cls, grid ):
-        if grid <> None:
+        if grid != None:
             if (grid.__class__.__name__ in ( "RectGrid", "TransientRectGrid", "FileRectGrid") ):
                 return cls.Grid
         return cls.List
@@ -99,8 +99,8 @@ class MultiVarPointCollection():
         try:
             axis_order = var.getOrder()
             return axis_order.index(coord)
-        except ValueError, err:
-            print>>sys.stderr, "Can't find axis %s in axis order spec '%s' " % ( coord, axis_order )
+        except ValueError as err:
+            print("Can't find axis %s in axis order spec '%s' " % ( coord, axis_order ), file=sys.stderr)
             return None
 
 
@@ -112,12 +112,12 @@ class MultiVarPointCollection():
         iTimeIndex = self.getCoordIndex( var, 't' )
         try:
             if iTimeIndex > 0:
-                print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+                print("Unimplemented axis order: %s " % var.getOrder(), file=sys.stderr)
             elif iTimeIndex is None:
                 if self.lev == None:
                     if len( var.shape ) == 1:
                         np_var_data_block = var[ self.istart::self.istep ].data
-                        if self.roi_mask <> None:
+                        if self.roi_mask != None:
                             np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block )
                     elif len( var.shape ) == 2:
                         np_var_data_block = var[ :, self.istart::self.istep ].data
@@ -132,7 +132,7 @@ class MultiVarPointCollection():
                             np_var_data_block = var[  self.istart::self.istep, : ].data
                             np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
                         else:
-                            print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+                            print("Unimplemented axis order: %s " % var.getOrder(), file=sys.stderr)
                         if not isNone( np_var_data_block ):
                             if not isNone( self.roi_mask ):
                                 np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block, axis = 1 )
@@ -146,7 +146,7 @@ class MultiVarPointCollection():
                 if self.lev == None:
                     if len( var.shape ) == 2:
                         np_var_data_block = var[ self.iTimeStep, self.istart::self.istep ].data
-                        if self.roi_mask <> None:
+                        if self.roi_mask != None:
                             np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block )
                     elif len( var.shape ) == 3:
                         np_var_data_block = var[ self.iTimeStep, :, self.istart::self.istep ].data
@@ -161,7 +161,7 @@ class MultiVarPointCollection():
                             np_var_data_block = var[ self.iTimeStep, self.istart::self.istep, : ].data
                             np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
                         else:
-                            print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+                            print("Unimplemented axis order: %s " % var.getOrder(), file=sys.stderr)
                         if not isNone( np_var_data_block ):
                             if not isNone( self.roi_mask ):
                                 np_var_data_block = numpy.compress( self.roi_mask, np_var_data_block, axis = 1 )
@@ -171,9 +171,9 @@ class MultiVarPointCollection():
                             data_z_slice = var[ self.iTimeStep, ilev ].flatten()
                             lev_data_arrays.append( data_z_slice[self.istart::self.istep] )
                         np_var_data_block = numpy.concatenate( lev_data_arrays ).astype( numpy.float32 )
-        except Exception, err:
-            print " Error in GetDataBlock, var.shape = %s, grid = %s, ts = %d " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep )
-            print str(err)
+        except Exception as err:
+            print(" Error in GetDataBlock, var.shape = %s, grid = %s, ts = %d " % ( str(var.shape), str((self.istart,self.istep)), self.iTimeStep ))
+            print(str(err))
 
         if not isNone( np_var_data_block ):
             if self.missing_value:  np_var_data_block = numpy.ma.masked_equal( np_var_data_block, self.missing_value, False ).flatten()
@@ -194,7 +194,7 @@ class MultiVarPointCollection():
                     np_var_data_block = var[ :, pointIndex, iLevIndex ].data
                     np_var_data_block = numpy.swapaxes( np_var_data_block, 0, 1 )
                 else:
-                    print>>sys.stderr, "Unimplemented axis order: %s " % var.getOrder()
+                    print("Unimplemented axis order: %s " % var.getOrder(), file=sys.stderr)
 
         return np_var_data_block
 
@@ -209,7 +209,7 @@ class MultiVarPointCollection():
         else:
             self.lat_data = lat[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat[::]
             self.lon_data = lon[self.istart::self.istep]
-        if ( self.point_layout == PlotType.List ) and ( self.roi <> None ):
+        if ( self.point_layout == PlotType.List ) and ( self.roi != None ):
             if ( self.roi[2] <= 0.0 ) and ( self.lon_data.data.min() >= 0.0 ):
                 self.roi = [ self.roi[0]+360.0, self.roi[1], self.roi[2]+360.0, self.roi[3] ]
             if ( self.roi[0] > 180.0 ) and ( self.lon_data.data.max() <= 180.0 ):
@@ -221,7 +221,7 @@ class MultiVarPointCollection():
                 self.lat_data = numpy.compress( self.roi_mask, self.lat_data )
                 self.lon_data = numpy.compress( self.roi_mask, self.lon_data )
             else:
-                print>>sys.stderr, "Ignoring empty ROI"
+                print("Ignoring empty ROI", file=sys.stderr)
                 self.roi_mask = None
         else:
             self.roi_mask = None
@@ -278,7 +278,7 @@ class MultiVarPointCollection():
             stage_height = ( self.maxStageHeight * z_scaling )
 
             nz = len( self.lev ) if self.lev else 1
-            if height_varname and (height_varname <> self.hgt_var) and (height_varname <> 'Levels' ):
+            if height_varname and (height_varname != self.hgt_var) and (height_varname != 'Levels' ):
                 hgt_var = self.getProcessedVariable( height_varname )
                 if hgt_var:
                     self.hgt_var = height_varname
@@ -289,9 +289,9 @@ class MultiVarPointCollection():
                     if self.data_height == None: self.data_height = ( self.vertical_bounds[1] - self.vertical_bounds[0] )
                     self.point_data_arrays['z'] = zdata * ( stage_height / self.data_height )
                 else:
-                    print>>sys.stderr, "Can't find height var: %s " % height_varname
+                    print("Can't find height var: %s " % height_varname, file=sys.stderr)
             else:
-                if ( z_scaling <> self.z_scaling ) or ( self.roi <> None ) or ( (height_varname <> self.hgt_var) and (height_varname == 'Levels' ) ):
+                if ( z_scaling != self.z_scaling ) or ( self.roi != None ) or ( (height_varname != self.hgt_var) and (height_varname == 'Levels' ) ):
                     self.z_scaling = z_scaling
                     if height_varname: self.hgt_var = height_varname
                     np_points_data_list = []
@@ -362,13 +362,13 @@ class MultiVarPointCollection():
                     lon = data_file( axis_ids[0], squeeze=1 )
                     lat = data_file( axis_ids[1], squeeze=1 )
             except cdms2.error.CDMSError:
-                print>>sys.stderr, "Can't find lat/lon coordinate variables in file(s)."
+                print("Can't find lat/lon coordinate variables in file(s).", file=sys.stderr)
                 return None, None
             if PlotType.validCoords( lat, lon ):
                 return  self.processCoordinates( lat, lon )
         elif hasattr( Var, "stagger" ):
             stagger = Var.stagger.strip()
-            if data_file <> None:
+            if data_file != None:
                 lat = data_file( "XLAT_%s" % stagger, squeeze=1 )
                 lon = data_file( "XLONG_%s" % stagger, squeeze=1 )
                 if PlotType.validCoords( lat, lon ):
@@ -390,10 +390,10 @@ class MultiVarPointCollection():
         lat_coord_names = [ 'north_south', 'south_north' ]
         for axis_spec in Var.getDomain():
             for aname in lon_coord_names:
-                if axis_spec[0].id.lower().find( aname ) <> -1:
+                if axis_spec[0].id.lower().find( aname ) != -1:
                     lon = axis_spec[0]
             for aname in lat_coord_names:
-                if axis_spec[0].id.lower().find( aname ) <> -1:
+                if axis_spec[0].id.lower().find( aname ) != -1:
                     lat = axis_spec[0]
         if PlotType.validCoords( lat, lon ):
             return  self.processCoordinates( lat.getValue(), lon.getValue() )
@@ -422,7 +422,7 @@ class MultiVarPointCollection():
                                 lat = dset( cvar.id, squeeze=1 )
         if PlotType.validCoords( lat, lon ):
             return  self.processCoordinates( lat, lon )
-        print>>sys.stdout, "Error, Can't find grid axes!"
+        print("Error, Can't find grid axes!", file=sys.stdout)
         return None, None
 
     def setDataSlice(self, istart, **args ):
@@ -446,10 +446,10 @@ class MultiVarPointCollection():
                     except: pass
                 if axis.id in lev_aliases:
                     axis.designateLevel()
-                    return grid_lev if ( grid_lev <> None ) else axis
+                    return grid_lev if ( grid_lev != None ) else axis
             for axis_spec in var.getDomain():
                 axis = axis_spec[0]
-                if axis.id.find('level') <> -1:
+                if axis.id.find('level') != -1:
                     axis.designateLevel()
                     return axis
         return lev
@@ -458,7 +458,7 @@ class MultiVarPointCollection():
         process = args.get( 'process', True )
         update_points = args.get( 'update_points', True )
         self.iTimeStep = self.iTimeStep + 1
-        print " PCmv [%d/%d]: stepTime[%d/%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, self.time.shape[0], str( process ) )
+        print(" PCmv [%d/%d]: stepTime[%d/%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, self.time.shape[0], str( process ) ))
         if self.iTimeStep >= self.time.shape[0]:
             self.iTimeStep = 0
         grid_var_name = self.var.id
@@ -472,12 +472,12 @@ class MultiVarPointCollection():
         return process
 
     def getProcessedVariable( self, var_proc_op = None ):
-        var = self.df[ self.grid_vars[0] ] if ( (self.df <> None) and ( type( self.grid_vars[0] ) == str ) ) else self.grid_vars[0]
+        var = self.df[ self.grid_vars[0] ] if ( (self.df != None) and ( type( self.grid_vars[0] ) == str ) ) else self.grid_vars[0]
         self.point_layout = self.getPointsLayout( var )
         if isNone( var ):
-            print>>sys.stderr, "Error, can't find variable '%s' in data file." % ( self.grid_vars[0] )
+            print("Error, can't find variable '%s' in data file." % ( self.grid_vars[0] ), file=sys.stderr)
             return None
-        if self.roi <> None:
+        if self.roi != None:
             if ( self.point_layout == PlotType.Grid ):
                 var = var.subRegion( longitude=(self.roi[0],self.roi[2]), latitude=(self.roi[1],self.roi[3]) )
 #             else:
@@ -499,7 +499,7 @@ class MultiVarPointCollection():
         self.roi = ROI
         self.gf = cdms2.open( grid_file ) if grid_file else None
         self.df = cdms2.open( data_file ) if data_file else None
-        self.grid_vars = grd_vars if ( grd_vars <> None ) else self.df.variables[0]
+        self.grid_vars = grd_vars if ( grd_vars != None ) else self.df.variables[0]
         self.grid_coords = grd_coords
         self.initPoints( var_proc_op, zscale )
 
@@ -522,13 +522,13 @@ class MultiVarPointCollection():
                     if PlotType.isLevelAxis( axis[0].id.lower() ):
                         self.lev = axis[0]
                         break
-            if self.lev <> None:
+            if self.lev != None:
                 self.vars[ 'lev' ] = self.lev
             self.computePoints()
             self.point_data_arrays[ 'lon' ] = self.point_data_arrays['x']
             self.point_data_arrays[ 'lat' ] = self.point_data_arrays['y']
             self.setPointHeights( height_var=self.grid_coords[3], z_scale=z_scale )
-            if self.lev <> None:
+            if self.lev != None:
                 self.metadata[ 'lev' ] = ( self.lev.__dict__.get('long_name',self.lev.id), self.lev.units, self.axis_bounds.get( 'z', None ) )
                 self.point_data_arrays[ 'lev' ] = self.point_data_arrays['z']
 
@@ -577,10 +577,10 @@ class MultiVarPointCollection():
         try:
             ( threshold_target, rmin, rmax, normalized ) = args
         except ValueError:
-            print>>sys.stderr, "Value Error Unpacking thresholding data: %s " % str( args )
+            print("Value Error Unpacking thresholding data: %s " % str( args ), file=sys.stderr)
             return None, None, None
         except Exception:
-            print>>sys.stderr, "Exception Unpacking thresholding data: %s " % str( args )
+            print("Exception Unpacking thresholding data: %s " % str( args ), file=sys.stderr)
             return None, None, None
         vmin = None
         var_data_id = self.var.id if ( threshold_target == 'vardata' ) else threshold_target
@@ -592,14 +592,14 @@ class MultiVarPointCollection():
                     dv = arange[1] - arange[0]
                     vmin = arange[0] + rmin * dv
                     vmax = arange[0] + rmax * dv
-                elif ( threshold_target == 'vardata' ) or ( threshold_target in self.vars.keys() ):
+                elif ( threshold_target == 'vardata' ) or ( threshold_target in list(self.vars.keys()) ):
                     vrng = self.vrange[ var_data_id ]
                     if normalized:
                         dv = vrng[1] - vrng[0]
                         try:
                             vmin = vrng[0] + rmin * dv
                             vmax = vrng[0] + rmax * dv
-                        except TypeError, err:
+                        except TypeError as err:
                             pass
                     else:
                         vmin = rmin
@@ -616,7 +616,7 @@ class MultiVarPointCollection():
                         self.thresholded_range[var_data_id] = [ vmin, vmax ]
                     return var_data.flatten(), vmin, vmax
             except TypeError:
-                print>>sys.stderr, "Range Error Computing Threshold: ", str(arange )
+                print("Range Error Computing Threshold: ", str(arange ), file=sys.stderr)
         return None, None, None
 
     def execute( self, args, **kwargs ):
@@ -635,7 +635,7 @@ class MultiVarPointCollection():
                         threshold_mask = numpy.logical_and( threshold_mask, var_mask )
 #            print "Point Collection, update indices: %s, trange = %s " % ( str( args ), str( ( vmin, vmax ) ) )
             if isNone( threshold_mask ):
-                print>>sys.stderr, "Thresholding failed for spec: ", str( args )
+                print("Thresholding failed for spec: ", str( args ), file=sys.stderr)
                 return None, None
             else:
                 index_array = numpy.arange( 0, len(threshold_mask) )
