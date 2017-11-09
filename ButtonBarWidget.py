@@ -4,6 +4,7 @@ Created on May 28, 2014
 @author: tpmaxwel
 '''
 
+from __future__ import print_function
 import vtk, os, sys, collections
 import numpy as np
 from .ConfigurationFunctions import *

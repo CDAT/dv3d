@@ -4,6 +4,7 @@ Created on Apr 29, 2014
 @author: tpmaxwel
 '''
 
+from __future__ import print_function
 import sys, vtk, cdms2, traceback, os, cdtime, math
 from .ColorMapManager import *
 from .Shapefile import shapeFileReader

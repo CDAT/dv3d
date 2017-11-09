@@ -4,6 +4,7 @@ Created on Sep 18, 2013
 @author: tpmaxwel
 '''
 
+from __future__ import print_function
 import sys, os, traceback
 import numpy
 from cdms2.error import CDMSError

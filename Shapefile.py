@@ -7,6 +7,8 @@ date: 20130622
 version: 1.1.7
 Compatible with Python versions 2.4-3.x
 """
+from __future__ import print_function
+
 __version__ = "1.1.7"
 
 from struct import pack, unpack, calcsize, error

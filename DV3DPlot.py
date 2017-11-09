@@ -3,6 +3,7 @@ Created on Apr 30, 2014
 
 @author: tpmaxwel
 '''
+from __future__ import print_function
 from .ColorMapManager import *
 from .ButtonBarWidget import *
 import vtk, traceback, time, threading

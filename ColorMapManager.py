@@ -4,6 +4,7 @@ Hacked from the Enthought MayaVi2 lut_manager
 @author: tpmaxwel
 '''
 
+from __future__ import print_function
 import os.path
 import sys, vtk, copy
 import pickle

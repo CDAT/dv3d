@@ -2,14 +2,13 @@
 Created on May 14, 2014
 
 @author: tpmaxwel
-'''
 
-'''
 Created on Apr 23, 2014
 
 @author: tpmaxwell
 '''
 
+from __future__ import print_function
 import sys, vtk, cdms2, traceback, os, cdtime
 from .ColorMapManager import *
 from .ImagePlaneWidget import ImagePlaneWidget

@@ -3,6 +3,7 @@ Created on Sep 18, 2013
 
 @author: tpmaxwel
 '''
+from __future__ import print_function
 import sys, math
 import numpy
 import cdms2, cdutil

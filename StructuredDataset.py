@@ -3,6 +3,7 @@ Created on Dec 11, 2010
 
 @author: tpmaxwel
 '''
+from __future__ import print_function
 import vtk, sys, os, copy, time, traceback, collections
 from collections import OrderedDict
 import numpy.ma as ma

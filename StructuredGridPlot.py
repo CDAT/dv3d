@@ -4,6 +4,7 @@ Created on Apr 23, 2014
 @author: tpmaxwell
 '''
 
+from __future__ import print_function
 import vtk, sys, os
 from .ColorMapManager import *
 from .Shapefile import shapeFileReader

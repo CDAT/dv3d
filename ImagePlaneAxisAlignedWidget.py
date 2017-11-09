@@ -1,4 +1,5 @@
 
+from __future__ import print_function
 import vtk, sys, gc
 
 class DisplayMode:

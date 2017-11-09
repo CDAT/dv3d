@@ -3,6 +3,7 @@ Created on May 9, 2014
 
 @author: tpmaxwel
 '''
+from __future__ import print_function
 import sys, vtk, cdms2, traceback, os, cdtime, pickle, copy
 from io import StringIO
 import numpy as np
