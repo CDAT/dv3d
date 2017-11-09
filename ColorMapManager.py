@@ -11,7 +11,10 @@ import pickle
 
 pkl_path = os.path.join( os.path.dirname( __file__ ), 'data', 'colormaps.pkl' )
 colormap_file = open( pkl_path, 'rb' )
-colormaps = pickle.load( colormap_file, encoding='latin1' )
+try:
+    colormaps = pickle.load( colormap_file, encoding='latin1' )
+except:
+    colormaps = pickle.load( colormap_file )
 colormap_file.close()
 
 VTK_BACKGROUND_COLOR =  ( 1.0, 1.0, 1.0 ) # ( 0.0, 0.0, 0.0 )
