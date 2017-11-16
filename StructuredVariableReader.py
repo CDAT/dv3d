@@ -4,11 +4,12 @@ Created on Nov 21, 2011
 @author: tpmaxwel
 '''
 
+from __future__ import print_function
 import vtk, sys, os, copy, time, traceback, collections
-import cdms2, cdtime, cdutil, MV2, cPickle
+import cdms2, cdtime, cdutil, MV2, pickle
 PortDataVersion = 0
-from ConfigurationFunctions import *
-from StructuredDataset import *
+from .ConfigurationFunctions import *
+from .StructuredDataset import *
 
 def getVarName( var ):
     if hasattr( var,'name'): return var.name
@@ -25,7 +26,7 @@ class OutputRecManager:
 
     def __init__( self, serializedData = None ):
         self.outputRecs = {}
-        if serializedData <> None:
+        if serializedData != None:
             self.deserialize( serializedData )
 
 #     def deleteOutput( self, dsid, outputName ):
@@ -42,11 +43,11 @@ class OutputRecManager:
 
     def getOutputRecNames( self, dsid  ):
         orecMap =  self.outputRecs.get( dsid, None )
-        return orecMap.keys() if orecMap else []
+        return list(orecMap.keys()) if orecMap else []
 
     def getOutputRecs( self, dsid ):
         orecMap =  self.outputRecs.get( dsid, None )
-        return orecMap.values() if orecMap else []
+        return list(orecMap.values()) if orecMap else []
 
 class OutputRec:
 
@@ -90,7 +91,7 @@ class StructuredDataReader:
 
     def __init__(self, **args):
         init_specs = args.get( 'init_specs', None )
-        if init_specs <> None:
+        if init_specs != None:
             self.datasetId = init_specs[1]
             self.fileSpecs = init_specs[1]
             self.varSpecs = init_specs[3]
@@ -100,10 +101,10 @@ class StructuredDataReader:
             self.vars =  [ self.df[ varSpec ] for varSpec in self.varSpecs ]
         else:
             self.vars =  args.get( 'vars', None )
-            if self.vars <> None:
+            if self.vars != None:
                 dfile = self.vars[0].parent
                 self.subSpace = get_scalar_value( args.get( 'axes', 'xyz' ) )
-                if dfile <> None:
+                if dfile != None:
                     self.datasetId = dfile.Title if hasattr( dfile, 'Title' ) else dfile.id
                     self.fileSpecs = dfile.id
                     self.varSpecs = [ var.name_in_file for var in self.vars ]
@@ -111,14 +112,14 @@ class StructuredDataReader:
                 else:
                     self.varSpecs = [ var.id for var in self.vars ]
                     plot_attributes = args.get( 'plot_attributes', None )
-                    if plot_attributes <> None:
+                    if plot_attributes != None:
                         self.datasetId = plot_attributes.get( 'filename', self.vars[0].id )
                         for file_attribute_name in ['url', 'filename', 'file' ]:
                             self.fileSpecs = plot_attributes.get( file_attribute_name, None )
-                            if self.fileSpecs <> None: break
+                            if self.fileSpecs != None: break
                         try: self.df = cdms2.open( self.fileSpecs )
                         except:
-                            print>>sys.stderr, "Warning, can't open data file '%s'" % self.fileSpecs
+                            print("Warning, can't open data file '%s'" % self.fileSpecs, file=sys.stderr)
                             self.df = None
                     else:
                         self.datasetId = self.vars[0].id
@@ -156,7 +157,7 @@ class StructuredDataReader:
     def clearCache( cls, cell_coords ):
 #         from packages.vtDV3D.vtUtilities import memoryLogger
 #         memoryLogger.log("start VolumeRader.clearCache")
-        for dataCacheItems in cls.dataCache.items():
+        for dataCacheItems in list(cls.dataCache.items()):
             dataCacheKey = dataCacheItems[0]
             dataCacheObj = dataCacheItems[1]
             if cell_coords in dataCacheObj.cells:
@@ -168,13 +169,13 @@ class StructuredDataReader:
                         try:
                             varDataMap['newDataArray' ] = None
                             del newDataArray
-                        except Exception, err:
-                            print>>sys.stderr, "Error releasing variable data: ", str(err)
+                        except Exception as err:
+                            print("Error releasing variable data: ", str(err), file=sys.stderr)
                     dataCacheObj.data['varData'] = None
                     del cls.dataCache[ dataCacheKey ]
-                    print "Removing Cached data: ", str( dataCacheKey )
+                    print("Removing Cached data: ", str( dataCacheKey ))
 #        memoryLogger.log(" finished clearing data cache ")
-        for imageDataItem in cls.imageDataCache.items():
+        for imageDataItem in list(cls.imageDataCache.items()):
             freeImageData( imageDataItem[1] )
 #        memoryLogger.log("finished clearing image cache")
 
@@ -215,14 +216,14 @@ class StructuredDataReader:
             if not isDesignated( axis ):
                 if matchesAxisType( axis, lev_axis_attr, lev_aliases ):
                     axis.designateLevel()
-                    print " --> Designating axis %s as a Level axis " % axis.id
+                    print(" --> Designating axis %s as a Level axis " % axis.id)
                 elif matchesAxisType( axis, lat_axis_attr, lat_aliases ):
                     axis.designateLatitude()
-                    print " --> Designating axis %s as a Latitude axis " % axis.id
+                    print(" --> Designating axis %s as a Latitude axis " % axis.id)
                     latLonGrid = False
                 elif matchesAxisType( axis, lon_axis_attr, lon_aliases ):
                     axis.designateLongitude()
-                    print " --> Designating axis %s as a Longitude axis " % axis.id
+                    print(" --> Designating axis %s as a Longitude axis " % axis.id)
                     latLonGrid = False
             elif ( axis.isLatitude() or axis.isLongitude() ):
                 if ( axis.id.lower()[0] == 'x' ) or ( axis.id.lower()[0] == 'y' ):
@@ -290,7 +291,7 @@ class StructuredDataReader:
         intersectedRoi = self.cdmsDataset.gridBounds
         intersectedRoi = self.getIntersectedRoi( cdms_var, intersectedRoi )
         for cdms_var in self.vars[1:]:
-            if id(cdms_var) <> id(None):
+            if id(cdms_var) != id(None):
                 iVar = iVar+1
                 self.addCDMSVariable( cdms_var, iVar )
                 intersectedRoi = self.getIntersectedRoi( cdms_var, intersectedRoi )
@@ -369,7 +370,7 @@ class StructuredDataReader:
         return self.getInputValue( "portData", **args )
 
     def generateVariableOutput( self, cdms_var ):
-        print str(cdms_var.var)
+        print(str(cdms_var.var))
         self.set3DOutput( name=cdms_var.id,  output=cdms_var.var )
 
     def refreshVersion(self):
@@ -433,7 +434,7 @@ class StructuredDataReader:
             cachedImageDataName = self.output_names[ iIndex ]
             cachedImageData = self.getCachedImageData( cachedImageDataName )
         except IndexError:
-            print>>sys.stderr, "Error getting output ", int( iIndex )
+            print("Error getting output ", int( iIndex ), file=sys.stderr)
             return None
         return cachedImageData
 
@@ -463,7 +464,7 @@ class StructuredDataReader:
             na = fieldData.GetNumberOfArrays()
             for ia in range(na):
                 aname = fieldData.GetArrayName(ia)
-                if (aname <> None) and aname.startswith('metadata'):
+                if (aname != None) and aname.startswith('metadata'):
                     fieldData.RemoveArray(aname)
         vars = []
         for varRec in varList:
@@ -494,7 +495,7 @@ class StructuredDataReader:
                 else:
                     varDataIdIndex = selectedLevel
 
-            iTS = self.iTimeStep if ( varName <> '__zeros__' ) else 0
+            iTS = self.iTimeStep if ( varName != '__zeros__' ) else 0
             varDataIdIndex = iTS
             roiStr = ":".join( [ ( "%.1f" % self.cdmsDataset.gridBounds[i] ) for i in range(4) ] ) if self.cdmsDataset.gridBounds else ""
             varDataId = '%s;%s;%d;%s;%s' % ( dsid, varName, self.outputType, str(varDataIdIndex), roiStr )
@@ -545,8 +546,8 @@ class StructuredDataReader:
             self.fieldData = vtk.vtkDataSetAttributes()
             mdarray = getStringDataArray( 'metadata' )
             self.fieldData.AddArray( mdarray )
-        except Exception, err:
-            print>>sys.stderr, "Error initializing metadata"
+        except Exception as err:
+            print("Error initializing metadata", file=sys.stderr)
 
     def addMetadata( self, metadata ):
         dataVector = self.fieldData.GetAbstractArray( 'metadata' )
@@ -575,7 +576,7 @@ class StructuredDataReader:
                 dsid = imageDataName.split('*')[0]
                 varList.append( '*'.join( [ dsid, '__zeros__' ] ) )
             else:
-                print>>sys.stderr, "Not enough components for vector plot: %d" % len(varList)
+                print("Not enough components for vector plot: %d" % len(varList), file=sys.stderr)
 #        print " Get Image Data: varList = %s " % str( varList )
         for varRec in varList:
             range_min, range_max, scale, shift  = 0.0, 0.0, 1.0, 0.0
@@ -588,9 +589,9 @@ class StructuredDataReader:
                 dsid = varNameComponents[0]
                 varName = varNameComponents[1]
             ds = self.cdmsDataset[ dsid ]
-            if (ds == None) and (self.df <> None):
+            if (ds == None) and (self.df != None):
                 ds = self.df
-            if ds <> None:
+            if ds != None:
                 var = ds.getVariable( varName )
                 if not var is None: self.setupTimeAxis( var, **args )
             else:
@@ -609,7 +610,7 @@ class StructuredDataReader:
                 else:
                     varDataIdIndex = selectedLevel
 
-            iTimestep = self.iTimeStep if ( varName <> '__zeros__' ) else 0
+            iTimestep = self.iTimeStep if ( varName != '__zeros__' ) else 0
             varDataIdIndex = iTimestep
             cell_coords = (0,0)
             roiStr = ":".join( [ ( "%.1f" % self.cdmsDataset.gridBounds[i] ) for i in range(4) ] ) if self.cdmsDataset.gridBounds else ""
@@ -627,9 +628,9 @@ class StructuredDataReader:
                 else:
                     tval = None if (self.outputType == CDMSDataType.Hoffmuller) else [ self.timeValue, iTimestep, self.useTimeIndex ]
                     varDataMasked = self.cdmsDataset.getVarDataCube( dsid, varName, tval, selectedLevel, cell=cell_coords )
-                    if varDataMasked.id <> 'NULL':
+                    if varDataMasked.id != 'NULL':
                         varDataSpecs = self.getGridSpecs( varDataMasked, self.cdmsDataset.gridBounds, self.cdmsDataset.zscale, self.outputType, ds )
-                        if (exampleVarDataSpecs == None) and (varDataSpecs <> None): exampleVarDataSpecs = varDataSpecs
+                        if (exampleVarDataSpecs == None) and (varDataSpecs != None): exampleVarDataSpecs = varDataSpecs
                         range_min = varDataMasked.min()
                         if type( range_min ).__name__ == "MaskedConstant": range_min = 0.0
                         range_max = varDataMasked.max()
@@ -660,7 +661,7 @@ class StructuredDataReader:
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
                         md[ 'plotType' ] = 'xyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
-                        if self.timeLabels <> None:
+                        if self.timeLabels != None:
                             md[ 'base_time' ] = [ str(ct) for ct in self.timeLabels ]
                         tvar  = var if not var is None else self.vars[0]
                         axis = tvar.getLongitude()
@@ -717,7 +718,7 @@ class StructuredDataReader:
             na = fieldData.GetNumberOfArrays()
             for ia in range(na):
                 aname = fieldData.GetArrayName(ia)
-                if (aname <> None) and aname.startswith('metadata'):
+                if (aname != None) and aname.startswith('metadata'):
                     fieldData.RemoveArray(aname)
     #                print 'Remove fieldData Array: %s ' % aname
         extent = image_data.GetExtent()
@@ -742,12 +743,12 @@ class StructuredDataReader:
                     vtkdata.Modified()
                     pointData.AddArray( vtkdata )
 #                    print "Add array to PointData: %s " % ( varName  )
-                    if (scalars == None) and (varName <> '__zeros__'):
+                    if (scalars == None) and (varName != '__zeros__'):
                         scalars = varName
                         pointData.SetActiveScalars( varName  )
                         md[ 'scalars'] = varName
-            except Exception, err:
-                print>>sys.stderr, "Error creating variable metadata: %s " % str(err)
+            except Exception as err:
+                print("Error creating variable metadata: %s " % str(err), file=sys.stderr)
                 traceback.print_exc()
 #         for iArray in range(2):
 #             scalars = pointData.GetArray(iArray)
@@ -777,7 +778,7 @@ class StructuredDataReader:
                 varDataFields = varDataId.split(';')
                 dsid = varDataFields[0]
                 varName = varDataFields[1]
-                if varName <> '__zeros__':
+                if varName != '__zeros__':
                     varDataSpecs = self.getCachedData( varDataId, cell_coords )
                     vmd = varDataSpecs[ 'md' ]
                     var_md = md[ 'attributes' ]
@@ -787,8 +788,8 @@ class StructuredDataReader:
                     if enc_mdata and fieldData: fieldData.AddArray( getStringDataArray( 'metadata:%s' % varName,   [ enc_mdata ]  ) )
             if enc_mdata and fieldData: fieldData.AddArray( getStringDataArray( 'varlist',  vars  ) )
             image_data.Modified()
-        except Exception, err:
-            print>>sys.stderr, "Error encoding variable metadata: %s " % str(err)
+        except Exception as err:
+            print("Error encoding variable metadata: %s " % str(err), file=sys.stderr)
             traceback.print_exc()
         return cachedImageDataName
 
@@ -829,7 +830,7 @@ class StructuredDataReader:
             iCoord  = 2 if ( outputType == CDMSDataType.Hoffmuller ) else -1
         elif ( axis.isLevel() or PlotType.isLevelAxis(  axis.id ) ):
             self.lev = axis
-            iCoord  = 2 if ( outputType <> CDMSDataType.Hoffmuller ) else -1
+            iCoord  = 2 if ( outputType != CDMSDataType.Hoffmuller ) else -1
         return iCoord
 
     def getIntersectedRoi( self, var, current_roi ):
@@ -853,7 +854,7 @@ class StructuredDataReader:
             new_roi_size = getRoiSize( newRoi )
             return newRoi if ( ( current_roi_size > new_roi_size ) and ( new_roi_size > 0.0 ) ) else current_roi
         except:
-            print>>sys.stderr, "Error getting ROI for input variable"
+            print("Error getting ROI for input variable", file=sys.stderr)
             traceback.print_exc()
             return current_roi
 

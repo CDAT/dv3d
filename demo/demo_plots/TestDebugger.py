@@ -29,7 +29,7 @@ class vcsTest:
         self.actions = args.get( 'actions', [ 'test' ] )
 
     def build(self):
-        print "Processing vars %s from file %s" % ( str(self.varnames), self.file_path )
+        print("Processing vars %s from file %s" % ( str(self.varnames), self.file_path ))
         plot_args = []
         for varname in self.varnames:
             var = self.file[varname]
@@ -39,7 +39,7 @@ class vcsTest:
         self.canvas = vcs.init()
         self.canvas.drawlogooff()
         self.gm = vcs.get3d_scalar( self.template ) if ( self.ptype == '3d_scalar' ) else vcs.get3d_vector( self.template )
-        for pitem in self.parameters.items():
+        for pitem in list(self.parameters.items()):
             self.gm.setParameter( pitem[0], pitem[1] )
         plot_args.append( self.gm )
 
@@ -63,7 +63,7 @@ class vcsTest:
 
     def run( self ):
         self.build()
-        print "Type <Enter> to exit."
+        print("Type <Enter> to exit.")
         sys.stdout.flush()
         line = sys.stdin.readline()
         sys.exit(0)

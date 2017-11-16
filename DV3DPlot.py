@@ -3,8 +3,9 @@ Created on Apr 30, 2014
 
 @author: tpmaxwel
 '''
-from ColorMapManager import *
-from ButtonBarWidget import *
+from __future__ import print_function
+from .ColorMapManager import *
+from .ButtonBarWidget import *
 import vtk, traceback, time, threading
 MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
@@ -40,7 +41,7 @@ def ffmpeg( movie, rootFileName ):
  #   cmd += ' -b:v %sk' % bitrate
  #   cmd += ' ' + options
     cmd += ' ' + movie
-    print "Exec: ", cmd
+    print("Exec: ", cmd)
     o = os.popen(cmd).read()
     return o
 
@@ -48,7 +49,7 @@ def saveAnimation( saveDir, animation_frames ):
     writer = vtk.vtkFFMPEGWriter()
     movie = os.path.join( saveDir, "movie.avi" )
     writer.SetFileName( movie )
-    print "Saving recorded animation to %s" % movie; sys.stdout.flush()
+    print("Saving recorded animation to %s" % movie); sys.stdout.flush()
     writer.SetBitRate(1024*1024*30)
     writer.SetBitRateTolerance(1024*1024*3)
     writer.SetInputData( animation_frames[0] )
@@ -63,7 +64,7 @@ def saveAnimation( saveDir, animation_frames ):
 def saveAnimationFFMpeg( animation_frames, saveDir ):
     rootFileName = os.path.join( saveDir, "frame-" )
     files = []
-    print " Saving animation (%d frames) to '%s'" % ( len( animation_frames ) , saveDir ); sys.stdout.flush()
+    print(" Saving animation (%d frames) to '%s'" % ( len( animation_frames ) , saveDir )); sys.stdout.flush()
     for index, frame in enumerate( animation_frames ):
         writer = vtk.vtkPNGWriter()
         writer.SetInputData(frame)
@@ -75,20 +76,20 @@ def saveAnimationFFMpeg( animation_frames, saveDir ):
         time.sleep( 0.0 )
     ffmpeg( os.path.join( saveDir, "movie.avi" ), rootFileName )
     for f in files: os.remove(f)
-    print "Done saving animation"; sys.stdout.flush()
+    print("Done saving animation"); sys.stdout.flush()
 
 class SaveAnimation():
 
     def __init__( self, frames, **args ):
         self.animation_frames = list( frames )
         self.rootDirName = args.get( 'root_name', "~/.uvcdat/animation"  )
-        print "Init SaveAnimationThread, nframes = %d" % len( self.animation_frames )
+        print("Init SaveAnimationThread, nframes = %d" % len( self.animation_frames ))
 
     def getUnusedDirName( self ):
         for index in range( 100000 ):
             dir_name = os.path.expanduser( '-'.join( [ self.rootDirName, str(index) ]) )
             if not os.path.exists(dir_name):
-                os.mkdir( dir_name, 0755  )
+                os.mkdir( dir_name, 0o755  )
                 return dir_name
 
     def run(self):
@@ -251,20 +252,20 @@ class DV3DPlot():
         self.addKeyPressHandler( 't',  self.createTest )
 
     def toggleWidgetVisibility( self, **args ):
-        print " Toggle Widget Visibility: ", str( args )
+        print(" Toggle Widget Visibility: ", str( args ))
         self.widgetsVisible = not self.widgetsVisible
         if self.widgetsVisible:  self.showWidgets()
         else:                    self.hideWidgets()
 
     def createTest(self, **args ):
         ctestFunction = self.createCTestFunction()
-        print " Create CTest: \n", ctestFunction
+        print(" Create CTest: \n", ctestFunction)
 
     def setAnimationStepper( self, stepper_class ):
         self.animationStepper = stepper_class(self)
 
     def applyAction( self, action ):
-        print "Applying action: ", str(action)
+        print("Applying action: ", str(action))
 
     def getControlBar(self, config_function, build_args, **args ):
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.55, 0.08 ), **args )
@@ -297,7 +298,7 @@ class DV3DPlot():
 
     def getActiveConstituentNames(self):
         active_constituents = []
-        for cname in self.plotConstituents.keys():
+        for cname in list(self.plotConstituents.keys()):
             if self.isConstituentConfigEnabled(cname):
 	            active_constituents.append( cname )
         return active_constituents
@@ -321,7 +322,7 @@ class DV3DPlot():
         self.terminate()
         self.renderer.RemoveAllViewProps()
         self.clearReferrents()
-        if self.renderWindowInteractor <> None:
+        if self.renderWindowInteractor != None:
             self.renderWindowInteractor.TerminateApp()
 
 #         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
@@ -364,7 +365,7 @@ class DV3DPlot():
         plotButtons = self.getInteractionButtons()
         cf = plotButtons.getConfigFunction('Animation')
         event_duration = 0
-        if cf <> None:
+        if cf != None:
             animation_delay = cf.value.getValues()
             event_duration = event_duration + int( animation_delay[0]*1000 )
         return event_duration
@@ -375,7 +376,7 @@ class DV3DPlot():
 
     def updateTimer( self ):
         event_duration = self.getAnimationDelay()
-        if self.animationTimerId <> -1:
+        if self.animationTimerId != -1:
             self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
             self.animationTimerId = -1
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
@@ -399,15 +400,15 @@ class DV3DPlot():
 
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name )
-        print " ---> change Button Activation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
+        print(" ---> change Button Activation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) ))
         if button:
             if activate: button.activate()
             else: button.deactivate()
-        if state <> None:
+        if state != None:
             button.setToggleState( state )
 
     def changeButtonActivations(self, activation_list ):
-        print " ** Change Button Activations: ", str( activation_list )
+        print(" ** Change Button Activations: ", str( activation_list ))
         for activation_spec in activation_list:
             self.changeButtonActivation( *activation_spec )
 
@@ -460,12 +461,12 @@ class DV3DPlot():
                         var_list.append( pname )
                     else:
                         for pname in plist:
-                            if ( pname <> '__zeros__' ):
+                            if ( pname != '__zeros__' ):
                                 var_list.append( pname )
             mdataStrs.append( ' vars=%s' % str(var_list) )
             mdataStrs.append( ' type="%s"' % str(self.type) )
             template = self.plot_attributes.get( 'template', None )
-            if template <> None: mdataStrs.append( ' template="%s"' % template )
+            if template != None: mdataStrs.append( ' template="%s"' % template )
             cTestStrs.append( 'vcsTest( %s,' % ( ','.join(mdataStrs) ) )
             self.recordCamera()
             parameter_names = set( self.cfgManager.getParameterList() )
@@ -478,8 +479,8 @@ class DV3DPlot():
                     if pval: cTestStrs.append( '\t\t\t\t\t"%s": %s,' % ( param_name, pval ) )
             cTestStrs.append( '\t\t\t\t\t} )' )
             return '\n'.join( cTestStrs )
-        except Exception, err:
-            print "Error generating CTestFunction: ", str( err )
+        except Exception as err:
+            print("Error generating CTestFunction: ", str( err ))
             traceback.print_exc()
             return ""
 
@@ -488,7 +489,7 @@ class DV3DPlot():
         parameter_names = list( self.cfgManager.getParameterList() ) + PlotButtonNames
         for param_name in parameter_names:
             pval = self.cfgManager.getParameterValue( param_name )
-            if pval: print '%s = %s' % ( param_name, pval )
+            if pval: print('%s = %s' % ( param_name, pval ))
 
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
@@ -512,24 +513,24 @@ class DV3DPlot():
         pass
 
     def getRenderer(self):
-        if self.renderer <> None: return self.renderer
+        if self.renderer != None: return self.renderer
         return self.renderWindow.GetRenderers().GetFirstRenderer ()
 
     def processShowColorbarCommand( self, args, config_function = None ):
         if args and args[0] == "InitConfig":
             constituent = 'Slice'
             state = args[1]
-            cs_button = self.getConstituentSelectionButton( config_function, [ ( self.plotConstituents.keys(), ),  self.processColorbarConstituentSelection ], ( 0.9, 0.2) )
+            cs_button = self.getConstituentSelectionButton( config_function, [ ( list(self.plotConstituents.keys()), ),  self.processColorbarConstituentSelection ], ( 0.9, 0.2) )
             if state: cs_button.show()
             else:     cs_button.hide()
             colorbarParameter = self.cfgManager.getParameter( 'Colorbar' )
-            constituent = colorbarParameter.getValue( 'ConstituentSelected', self.plotConstituents.keys()[0] )
+            constituent = colorbarParameter.getValue( 'ConstituentSelected', list(self.plotConstituents.keys())[0] )
             self.toggleColorbarVisibility( constituent, state )
             self.processConfigStateChange( config_function.value )
 
     def processColorbarConstituentSelection( self, *args, **kwargs ):
         #print " Process Colorbar Constituent Selection: %s  " % str( args )
-        constituent = self.plotConstituents.keys()[ args[2] ]
+        constituent = list(self.plotConstituents.keys())[ args[2] ]
         colorbarParameter = self.cfgManager.getParameter( 'Colorbar' )
         colorbarParameter.setValue( 'ConstituentSelected', constituent )
         self.toggleColorbarVisibility( constituent, 1 )
@@ -538,19 +539,19 @@ class DV3DPlot():
         bbar = self.getPlotButtonbar()
         if not self.cfgManager.initialized:
             button = bbar.getButton( 'ZSlider' )
-            if button <> None:
+            if button != None:
                 button.setButtonState( 1 )
                 bbar.initializeSliderPosition(0)
         bbar.initializeState()
 
     def processChooseColormapCommand( self, args, config_function ):
-        from ListWidget import ColorbarListWidget
+        from .ListWidget import ColorbarListWidget
         colormapParam = config_function.value
         if args and args[0] == "StartConfig":
             pass
         elif args and args[0] == "Init":
             self.parameter_initializing = True
-            for plotItem in self.plotConstituents.items():
+            for plotItem in list(self.plotConstituents.items()):
                 self.setColormap( plotItem[0], config_function.initial_value )
             self.parameter_initializing = False
         elif args and args[0] == "EndConfig":
@@ -569,29 +570,29 @@ class DV3DPlot():
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
-            if self.colormapWidget <> None:
+            if self.colormapWidget != None:
                 self.colormapWidget.hide()
         elif args and args[0] == "UpdateConfig":
             cmap_data = args[3]
-            for plotItem in self.plotConstituents.items():
+            for plotItem in list(self.plotConstituents.items()):
                 if self.isConstituentConfigEnabled(plotItem[0]):
                     self.setColormap( plotItem[0], cmap_data )
             colormapParam.setValues( cmap_data  )
 
     def isConstituentConfigEnabled(self, constituent ):
         param = None
-        for plotItem in self.plotConstituents.items():
+        for plotItem in list(self.plotConstituents.items()):
             if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] )
-        return param.getValue( 'ConfigEnabled', True ) if ( param <> None ) else True
+        return param.getValue( 'ConfigEnabled', True ) if ( param != None ) else True
 
     def getInteractionState( self, key ):
         for bbar in ButtonBarWidget.getButtonBars():
             state = bbar.getInteractionState( key )
-            if state[0] <> None: return state
+            if state[0] != None: return state
         return ( None, None, None )
 
     def displayEventType(self, caller, event):
-        print " --> Event: %s " % event
+        print(" --> Event: %s " % event)
         return 0
 
     def updateAnimationControlBar(self, state, config_function ):
@@ -636,8 +637,8 @@ class DV3DPlot():
             try:
                 value = args[2].GetValue()
                 runSpeed.setValue( 0, value )
-            except Exception, err:
-                print>>sys.stderr, "Error setting animation run speed: ", str( err )
+            except Exception as err:
+                print("Error setting animation run speed: ", str( err ), file=sys.stderr)
 
     def processAnimationStateChange( self, button_id, key, state, force = False ):
 #        print " Process Animation State Change[%s], state = %d " % ( button_id, state )
@@ -653,7 +654,7 @@ class DV3DPlot():
             self.animating = False
         elif button_id == 'Record':
             self.record_animation = state
-            print " Set record_animation: " , str( self.record_animation )
+            print(" Set record_animation: " , str( self.record_animation ))
             if self.record_animation == 0:
                 self.saveAnimation()
 
@@ -664,7 +665,7 @@ class DV3DPlot():
 
     def stopAnimation(self):
         self.animating = False
-        if self.animationTimerId <> -1:
+        if self.animationTimerId != -1:
             self.animationTimerId = -1
             self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
             self.saveAnimation()
@@ -682,7 +683,7 @@ class DV3DPlot():
         keysym = interactor.GetKeySym()
         shift = interactor.GetShiftKey()
 #        print " setInteractionState -- Key Press: %c ( %d: %s ), event = %s " % ( key, ord(key), str(keysym), str( event ) )
-        alt = ( keysym <> None) and keysym.startswith("Alt")
+        alt = ( keysym != None) and keysym.startswith("Alt")
         if alt:
             self.isAltMode = True
         else:
@@ -738,13 +739,13 @@ class DV3DPlot():
         return 0
 
     def onLeftButtonRelease( self, caller, event ):
-        print " onLeftButtonRelease "
+        print(" onLeftButtonRelease ")
         self.currentButton = None
         self.recordCamera()
 
 
     def onRightButtonRelease( self, caller, event ):
-        print " onRightButtonRelease "
+        print(" onRightButtonRelease ")
         self.currentButton = None
         self.recordCamera()
 
@@ -766,7 +767,7 @@ class DV3DPlot():
 #                     self.render()
 
     def updateTextDisplay( self, text=None, render=False ):
-        if text <> None:
+        if text != None:
             self.labelBuff = "%s" % str(text)
         label_actor = self.getLabelActor()
         if label_actor:
@@ -803,12 +804,12 @@ class DV3DPlot():
         self.renderer.SetBackground(*background_color)
         self.textDisplayMgr = TextDisplayMgr( self.renderer )
         self.renderWindowInitSize = args.get( 'window_size', None )
-        if self.renderWindowInitSize <> None:
+        if self.renderWindowInitSize != None:
             self.renderWindow.SetSize( self.renderWindowInitSize )
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()
         try:        self.pointPicker.SetUseCells(True)
-        except:     print>>sys.stderr,  "Warning, vtkPointPicker patch not installed, picking will not work properly."
+        except:     print("Warning, vtkPointPicker patch not installed, picking will not work properly.", file=sys.stderr)
         self.pointPicker.InitializePickList()
         self.renderWindowInteractor.SetPicker(self.pointPicker)
         self.addObserver( self.renderer, 'ModifiedEvent', self.activateEvent )
@@ -855,11 +856,11 @@ class DV3DPlot():
         return 0
 
     def onAnyEvent(self, caller, event):
-        print " --- %s Event --- " % str(event)
+        print(" --- %s Event --- " % str(event))
         return 0
 
     def onCameraEvent(self, caller, event):
-        print " --- %s Event --- " % str(event)
+        print(" --- %s Event --- " % str(event))
         return 0
 
     def onRender(self, caller, event):
@@ -951,7 +952,7 @@ class DV3DPlot():
             self.parameter_initializing = True
             state = config_function.getState()
             if state: self.cfgManager.initialized = True
-            if config_function.initial_value <> None:
+            if config_function.initial_value != None:
                 config_function.setState( config_function.initial_value[0] )
             state = config_function.getState()
             if state: self.toggleIsosurfaceVisibility( state )
@@ -966,7 +967,7 @@ class DV3DPlot():
             self.parameter_initializing = True
             state = config_function.getState()
             if state: self.cfgManager.initialized = True
-            if config_function.initial_value <> None:
+            if config_function.initial_value != None:
                 config_function.setState( config_function.initial_value[0] )
 #            print " init ToggleVolumePlot: state=%s, cfg=(%s) " % ( str(state), str(config_function.initial_value) )
             state = config_function.getState()
@@ -1042,7 +1043,7 @@ class DV3DPlot():
     def onWindowRenderEvent( self, caller=None, event=None ):
         renwin = self.renderWindow if (caller == None) else caller
         window_size = renwin.GetSize()
-        if ( window_size <> self.renderWindowSize ):
+        if ( window_size != self.renderWindowSize ):
             self.onRenderWindowResize()
             self.renderWindowSize = window_size
         time.sleep(0.0)
@@ -1079,7 +1080,7 @@ class DV3DPlot():
 #            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
             self.resizingWindow = True
             self.animation_frames = []
-            if self.colormapWidget <> None:
+            if self.colormapWidget != None:
                 self.colormapWidget.hide()
                 self.colormapWidget = None
                 bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
@@ -1105,7 +1106,7 @@ class DV3DPlot():
         self.observerTargets.clear()
 
     def printInteractionStyle(self, msg ):
-        print "%s: InteractionStyle = %s " % ( msg,  self.renderWindowInteractor.GetInteractorStyle().__class__.__name__ )
+        print("%s: InteractionStyle = %s " % ( msg,  self.renderWindowInteractor.GetInteractorStyle().__class__.__name__ ))
 
     def toggleLogoVisibility( self ):
         if self.logoRepresentation is not None:
@@ -1173,7 +1174,7 @@ class DV3DPlot():
         self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )
 
     def closeConfigDialog(self):
-        print "x"
+        print("x")
         pass
 
     def enableRender(self, **args ):
@@ -1205,7 +1206,7 @@ class DV3DPlot():
         return colormapManager.lut
 
     def toggleColorbarVisibility(self, constituent, state ):
-        for colormapManagerItem in self.colormapManagers.items():
+        for colormapManagerItem in list(self.colormapManagers.items()):
             item_constituent = colormapManagerItem[0].split('-')[0]
             if state == 0 :
                 colormapManagerItem[1].toggleColorbarVisibility( state=0 )
@@ -1225,8 +1226,8 @@ class DV3DPlot():
             lut = vtk.vtkLookupTable()
             cmap_mgr = ColorMapManager( lut )
             self.colormapManagers[ cmap_name ] = cmap_mgr
-        if (invert <> None): cmap_mgr.invertColormap = invert
-        if (smooth <> None): cmap_mgr.smoothColormap = smooth
+        if (invert != None): cmap_mgr.invertColormap = invert
+        if (smooth != None): cmap_mgr.smoothColormap = smooth
         if name:             cmap_mgr.load_lut( name )
         return cmap_mgr
 
@@ -1248,8 +1249,8 @@ class DV3DPlot():
             self.updatingColormap( cmap_index, colormapManager )
             self.render()
             return True
-        except Exception, err:
-            print>>sys.stderr, "Error setting colormap: ", str(err)
+        except Exception as err:
+            print("Error setting colormap: ", str(err), file=sys.stderr)
         return False
 
     def getUnits(self, var_index ):
@@ -1309,7 +1310,7 @@ class DV3DPlot():
         cameraParameter = self.cfgManager.getParameter( 'Camera' )
         cPosition = cameraParameter.getValue( 'Position', None )
         if cPosition == None:
-            if self.renderWindowSize <> None:
+            if self.renderWindowSize != None:
                 self.renderWindow.SetSize( self.renderWindowSize )
             if d == None:
                 mapSize = self.mapManager.map_cut_size
@@ -1339,7 +1340,7 @@ class DV3DPlot():
         cfol = cam.GetFocalPoint()
         cup = cam.GetViewUp()
         camera_pos = (cpos,cfol,cup)
-        print "%s: Camera => %s " % ( label, str(camera_pos) )
+        print("%s: Camera => %s " % ( label, str(camera_pos) ))
 
     def update(self):
         pass
@@ -1358,7 +1359,7 @@ class DV3DPlot():
     def onKeyPress( self, caller, event ):
         key = caller.GetKeyCode()
         keysym = caller.GetKeySym()
-        print " -- Key Press: %s ( %s ), event = %s " % ( key, str(keysym), str( event ) )
+        print(" -- Key Press: %s ( %s ), event = %s " % ( key, str(keysym), str( event ) ))
         if keysym == None: return
         alt = ( keysym.lower().find('alt') == 0 )
         ctrl = caller.GetControlKey()

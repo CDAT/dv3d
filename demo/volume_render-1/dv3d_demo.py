@@ -70,7 +70,7 @@ elif demo_index == '3':
 #    dv3d.ScaleTransferFunction =  [10.0, 77.0, 1]
 
 else:
-    print>>sys.stderr, "Unknown demo index: ", demo_index
+    print("Unknown demo index: ", demo_index, file=sys.stderr)
 
 x.plot( v, dv3d )
 x.interact()

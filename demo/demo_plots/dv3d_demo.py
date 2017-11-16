@@ -81,7 +81,7 @@ elif demo_index == '5':
     dv3d.ToggleVolumePlot = vcs.off
 
 else:
-    print>>sys.stderr, "Unknown demo index: ", demo_index
+    print("Unknown demo index: ", demo_index, file=sys.stderr)
 
 if is_vector:
     x.plot( v0, v1, dv3d_v, bg=background_render )

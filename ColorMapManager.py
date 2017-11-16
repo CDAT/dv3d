@@ -4,13 +4,17 @@ Hacked from the Enthought MayaVi2 lut_manager
 @author: tpmaxwel
 '''
 
+from __future__ import print_function
 import os.path
 import sys, vtk, copy
-import cPickle
+import pickle
 
 pkl_path = os.path.join( os.path.dirname( __file__ ), 'data', 'colormaps.pkl' )
 colormap_file = open( pkl_path, 'rb' )
-colormaps = cPickle.load( colormap_file )
+try:
+    colormaps = pickle.load( colormap_file, encoding='latin1' )
+except:
+    colormaps = pickle.load( colormap_file )
 colormap_file.close()
 
 VTK_BACKGROUND_COLOR =  ( 1.0, 1.0, 1.0 ) # ( 0.0, 0.0, 0.0 )
@@ -42,7 +46,7 @@ class AlphaManager():
         self.graphEnabled = enable
 
     def setGraphData( self, data ):
-        print " set Graph Data: ", str(data); sys.stdout.flush()
+        print(" set Graph Data: ", str(data)); sys.stdout.flush()
         self.graph_data = data
         self.graphEnabled = True
 
@@ -136,7 +140,7 @@ class ColorMapManager():
 
     @staticmethod
     def getColormapNames():
-        return colormaps.keys()
+        return list(colormaps.keys())
 
     def getDisplayLookupTable(self):
         return self.display_lut
@@ -179,12 +183,12 @@ class ColorMapManager():
             errmsg = "Error: The input data file \"%s\"\n"%(file_name)
             errmsg = errmsg+ "is not a proper lookup table file."\
                      " No LOOKUP_TABLE tag in first line. Try again."
-            raise IOError, errmsg
+            raise IOError(errmsg)
         try:
             n_color = first[2]
         except:
 
-            raise IOError, "Error: No size for LookupTable specified."
+            raise IOError("Error: No size for LookupTable specified.")
         else:
             return n_color
 
@@ -203,15 +207,14 @@ class ColorMapManager():
             if len(entr) != 4:
                 errmsg="Error: insufficient or too much data in line "\
                         "-- \"%s\""%(entr)
-                raise IOError, errmsg
+                raise IOError(errmsg)
 
             tmp = []
             for color in entr:
                 try:
                     tmp.append(float(color))
                 except:
-                    raise IOError, \
-                          "Unknown entry '%s'in lookup table input."%color
+                    raise IOError("Unknown entry '%s'in lookup table input."%color)
             lut.append(tmp)
 
         return lut
@@ -223,15 +226,15 @@ class ColorMapManager():
                 f = open(file_name, 'r')
             except IOError:
                 msg = "Cannot open Lookup Table file: %s\n"%file_name
-                print>>sys.stderr, msg
+                print(msg, file=sys.stderr)
             else:
                 f.close()
                 try:
                     lut_list = self.parse_lut_file(file_name)
-                except IOError, err_msg:
+                except IOError as err_msg:
                     msg = "Sorry could not parse LUT file: %s\n" % file_name
                     msg += str( err_msg )
-                    raise IOError, msg
+                    raise IOError(msg)
                 else:
                     if self.invertColormap:
                         lut_list.reverse()
@@ -247,7 +250,7 @@ class ColorMapManager():
         return color
 
     def load_lut(self, value=None):
-        if( value <> None ): self.colormapName = str( value )
+        if( value != None ): self.colormapName = str( value )
         if self.colormapName == 'file':
             if self.file_name:
                 self.load_lut_from_file(self.file_name)
@@ -255,14 +258,14 @@ class ColorMapManager():
             lut = self.load_array()
             self.load_lut_from_list(lut.tolist())
         else:
-            print>>sys.stderr, "Error-- Unrecognized colormap: %s" % self.colormapName
+            print("Error-- Unrecognized colormap: %s" % self.colormapName, file=sys.stderr)
 
         self.display_lut.SetTable( self.lut.GetTable() )
         self.display_lut.SetValueRange( self.lut.GetValueRange() )
         self.display_lut.Modified()
 
     def load_array(self, name=None):
-        if( name <> None ):
+        if( name != None ):
             self.colormapName = str( name )
         reverse = self.invertColormap
         if self.colormapName in colormaps:
@@ -274,7 +277,7 @@ class ColorMapManager():
             if not n_color >= n_total:
                 lut = lut[::round(n_total/float(n_color))]
         else:
-            print>>sys.stderr, "Error-- Unrecognized colormap: %s" % self.colormapName
+            print("Error-- Unrecognized colormap: %s" % self.colormapName, file=sys.stderr)
             return None
         return lut
 

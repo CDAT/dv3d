@@ -44,7 +44,7 @@ def run_scalar_ctest( filename, varname, parms, template = "default" ):
     f = cdms2.open(vcs.sample_data+"/"+filename )
     v = f[varname]
     dv3d = vcs.get3d_scalar( template )
-    for item in parms.items():
+    for item in list(parms.items()):
         dv3d.setParameter( item[0], item[1] )
     x.plot( v, dv3d )
     x.interact()

@@ -7,6 +7,8 @@ date: 20130622
 version: 1.1.7
 Compatible with Python versions 2.4-3.x
 """
+from __future__ import print_function
+
 __version__ = "1.1.7"
 
 from struct import pack, unpack, calcsize, error
@@ -72,7 +74,7 @@ def is_string(v):
     if PYTHON3:
         return isinstance(v, str)
     else:
-        return isinstance(v, basestring)
+        return isinstance(v, str)
 
 class _Array(array.array):
     """Converts python tuples to lits of the appropritate type.
@@ -85,7 +87,7 @@ def signed_area(coords):
     algorithm at http://www.cgafaq.info/wiki/Polygon_Area. A value <= 0
     indicates a counter-clockwise oriented ring.
     """
-    xs, ys = map(list, zip(*coords))
+    xs, ys = list(map(list, list(zip(*coords))))
     xs.append(xs[1])
     ys.append(ys[1])
     return sum(xs[i]*(ys[i+1]-ys[i-1]) for i in range(1, len(coords)))/2.0
@@ -219,17 +221,17 @@ class Reader:
             if is_string(args[0]):
                 self.load(args[0])
                 return
-        if "shp" in kwargs.keys():
+        if "shp" in list(kwargs.keys()):
             if hasattr(kwargs["shp"], "read"):
                 self.shp = kwargs["shp"]
                 if hasattr(self.shp, "seek"):
                     self.shp.seek(0)
-            if "shx" in kwargs.keys():
+            if "shx" in list(kwargs.keys()):
                 if hasattr(kwargs["shx"], "read"):
                     self.shx = kwargs["shx"]
                     if hasattr(self.shx, "seek"):
                         self.shx.seek(0)
-        if "dbf" in kwargs.keys():
+        if "dbf" in list(kwargs.keys()):
             if hasattr(kwargs["dbf"], "read"):
                 self.dbf = kwargs["dbf"]
                 if hasattr(self.dbf, "seek"):
@@ -282,7 +284,7 @@ class Reader:
             rmax = self.numRecords - 1
             if abs(i) > rmax:
                 raise IndexError("Shape or Record index out of range.")
-            if i < 0: i = range(self.numRecords)[i]
+            if i < 0: i = list(range(self.numRecords))[i]
         return i
 
     def __shpHeader(self):
@@ -526,7 +528,7 @@ class Reader:
             self.__dbfHeader()
         f = self.__getFileObj(self.dbf)
         f.seek(self.__dbfHeaderLength())
-        for i in xrange(self.numRecords):
+        for i in range(self.numRecords):
             r = self.__record()
             if r:
                 yield r
@@ -1195,7 +1197,7 @@ class shapeFileReader:
                     inBounds = ( ( pt[0] > roi[0] ) and ( pt[0] < roi[1] ) )
                 if inBounds:
                     if (pt[1]>roi[2]) and (pt[1]<roi[3] ):
-                        if pt0 <> None:
+                        if pt0 != None:
                             plen = abs( pt0[0]-pt[0] ) + abs( pt0[1]-pt[1] )
                             if plen > 100:
                                 lines.InsertNextCell(idList)
@@ -1230,11 +1232,11 @@ class multiRoiShape:
 
 
      def openFile( self, res, textFilePath ):
-         if not self.FileMap.has_key(textFilePath):
+         if textFilePath not in self.FileMap:
              try:
                  self.FileMap[textFilePath]=self.read(textFilePath)
-             except Exception, err:
-                 print>>sys.stderr, "Error reading shapefile specs file %s: %s" % ( textFilePath, str(err) )
+             except Exception as err:
+                 print("Error reading shapefile specs file %s: %s" % ( textFilePath, str(err) ), file=sys.stderr)
                  return None
          resDict =  self.FileMap[textFilePath]
          return resDict[res]

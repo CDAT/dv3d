@@ -5,10 +5,10 @@ Created on Apr 29, 2014
 '''
 
 import sys, vtk, cdms2, traceback, os, cdtime, math
-from ColorMapManager import *
-from Shapefile import shapeFileReader
-from DistributedPointCollections import kill_all_zombies
-from StructuredGridPlot import  *
+from .ColorMapManager import *
+from .Shapefile import shapeFileReader
+from .DistributedPointCollections import kill_all_zombies
+from .StructuredGridPlot import  *
 #from ConfigFunctions import *
 import numpy as np
 
@@ -212,9 +212,9 @@ class VolumePlot(StructuredGridPlot):
         StructuredGridPlot.activateEvent( self, caller, event )
         if self.clipper and ( self.cropRegion == None ):
             self.renwin = self.renderer.GetRenderWindow( )
-            if self.renwin <> None:
+            if self.renwin != None:
                 iren = self.renwin.GetInteractor()
-                if ( iren <> None ):
+                if ( iren != None ):
                     self.clipper.SetInteractor( iren )
                     self.cropRegion = self.getVolumeBounds()
                     self.clipper.PlaceWidget( self.cropRegion )
@@ -266,7 +266,7 @@ class VolumePlot(StructuredGridPlot):
         if doRender: self.render()
 
     def getZScale( self ):
-        if self.volume <> None:
+        if self.volume != None:
             spacing = self.volume.GetScale()
             sx, sy, sz = spacing
             return [ 1.0, sz, 1 ]
@@ -334,7 +334,7 @@ class VolumePlot(StructuredGridPlot):
         configFunct = self.configurableFunctions[ 'functionScale' ]
         new_values = self.getDataValues( self._range[0:2] )
         range_values = configFunct.range
-        print "Update Range Values:  %s -> %s, max_opacity = %.2f " % ( str( range_values ), str( new_values ), self.max_opacity )
+        print("Update Range Values:  %s -> %s, max_opacity = %.2f " % ( str( range_values ), str( new_values ), self.max_opacity ))
         for i in range( 2 ): range_values[i] = new_values[i]
         for i in range( 2 ): range_values[i+3] = self.refinement[i]
         range_values[2] = AbsValueTransferFunction # self.transferFunctionConfig.getTransferFunctionType()
@@ -390,14 +390,14 @@ class VolumePlot(StructuredGridPlot):
             io2 = int(i/2)
             bounds[i] = origin[io2] + spacing[io2]*extent[i]
 
-        print " --VolumeRenderer--   Data Type = %s, range = (%f,%f), max_scalar = %s" % ( dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value )
-        print "Extent: %s " % str( self.input().GetWholeExtent() )
-        print "Spacing: %s " % str( spacing )
-        print "Origin: %s " % str( origin )
-        print "Dimensions: %s " % str( self.input().GetDimensions() )
-        print "Bounds: %s " % str( bounds )
-        print "Input Bounds: %s " % str( self.input().GetBounds() )
-        print "VolumePosition: %s " % str( self.pos )
+        print(" --VolumeRenderer--   Data Type = %s, range = (%f,%f), max_scalar = %s" % ( dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value ))
+        print("Extent: %s " % str( self.input().GetWholeExtent() ))
+        print("Spacing: %s " % str( spacing ))
+        print("Origin: %s " % str( origin ))
+        print("Dimensions: %s " % str( self.input().GetDimensions() ))
+        print("Bounds: %s " % str( bounds ))
+        print("Input Bounds: %s " % str( self.input().GetBounds() ))
+        print("VolumePosition: %s " % str( self.pos ))
 
 #        self.inputInfo = self.inputPort.GetInformation()
 #        translation = inputInfo.Get( ResampleTranslationKey  )
@@ -456,7 +456,7 @@ class VolumePlot(StructuredGridPlot):
 
 
     def clipObserver( self, caller=None, event=None ):
-        print " Clip Observer: %s ", str(event)
+        print(" Clip Observer: %s ", str(event))
 
     def startClip( self, caller=None, event=None ):
         self.clearCellSelection()
@@ -496,7 +496,7 @@ class VolumePlot(StructuredGridPlot):
         pointData = self.input().GetPointData()
         if self.activeLayer:
             pointData.SetActiveScalars( self.activeLayer )
-            print " SetActiveScalars on pointData(%s): %s" % ( addr(pointData), self.activeLayer )
+            print(" SetActiveScalars on pointData(%s): %s" % ( addr(pointData), self.activeLayer ))
 
     def UpdateCamera( self ):
 #        self.volume.UseBoundsOff()
@@ -509,7 +509,7 @@ class VolumePlot(StructuredGridPlot):
         self.renderer.ResetCameraClippingRange()
 
     def EventWatcher( self, caller, event ):
-        print "Event %s on class %s "  % ( event, caller.__class__.__name__ )
+        print("Event %s on class %s "  % ( event, caller.__class__.__name__ ))
 #        print "  --- Volume Input Extent: %s " % str( self.input().GetWholeExtent() )
         pass
 
@@ -541,7 +541,7 @@ class VolumePlot(StructuredGridPlot):
         tf_range = self.opacityTransferFunction.GetRange()
         dr = ( tf_range[1] - tf_range[0] ) / nPts
         sValues = [ "%.2f" % self.opacityTransferFunction.GetValue( tf_range[0] + iP * dr ) for iP in range( nPts ) ]
-        print "OTF values: ", ' '.join(sValues)
+        print("OTF values: ", ' '.join(sValues))
 
     def rebuildColorTransferFunction( self, imageRange ):
         lut = self.getLut()

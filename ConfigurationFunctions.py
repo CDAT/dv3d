@@ -3,8 +3,9 @@ Created on May 9, 2014
 
 @author: tpmaxwel
 '''
-import sys, vtk, cdms2, traceback, os, cdtime, cPickle, copy
-from StringIO import StringIO
+from __future__ import print_function
+import sys, vtk, cdms2, traceback, os, cdtime, pickle, copy
+from io import StringIO
 import numpy as np
 import inspect, ast
 from weakref import WeakSet, WeakKeyDictionary
@@ -103,7 +104,7 @@ def deserialize( data_obj ):
         return [ deserialize(item) for item in data_obj ]
     if isinstance( data_obj, dict ):
         rv = {}
-        for item in data_obj.items(): rv[ deserialize(item[0]) ] = deserialize(item[0])
+        for item in list(data_obj.items()): rv[ deserialize(item[0]) ] = deserialize(item[0])
         return rv
     if isinstance( data_obj, str ):
         return deserialize_str( data_obj )
@@ -137,7 +138,7 @@ class PlotType:
 
     @classmethod
     def validCoords( cls, lat, lon ):
-        return ( id(lat) <> id(None) ) and ( id(lon) <> id(None) )
+        return ( id(lat) != id(None) ) and ( id(lon) != id(None) )
 
     @classmethod
     def isLevelAxis( cls, pid ):
@@ -150,7 +151,7 @@ class PlotType:
 
     @classmethod
     def getPointsLayout( cls, grid ):
-        if grid <> None:
+        if grid != None:
             if (grid.__class__.__name__ in ( "RectGrid", "TransientRectGrid", "FileRectGrid") ):
                 return cls.Grid
         return cls.List
@@ -184,7 +185,7 @@ class SIGNAL(object):
             func(*args, **kargs)
 
         # Call handler methods
-        for obj, funcs in self._methods.items():
+        for obj, funcs in list(self._methods.items()):
             for func in funcs:
                 func(obj, *args, **kargs)
 
@@ -242,14 +243,14 @@ class ConfigManager:
         self.parameters = {}
         self.parent = args.get( 'cm', None )
         self.cell_coordinates = args.get( 'cell_coordinates', (0,0) )
-        if ( self.parent <> None ):
-            for parm_address in self.parent.parameters.keys():
+        if ( self.parent != None ):
+            for parm_address in list(self.parent.parameters.keys()):
                 basename = get_parameter_name( parm_address )
                 self.parameters[basename] = ConfigParameter(basename, parent=self.parent.getParameter(basename))
         self.initialized = False
 
     def clear( self, cell ):
-        for parm_address in self.parameters.keys():
+        for parm_address in list(self.parameters.keys()):
             pcell = get_parameter_cell( parm_address )
             if (pcell == cell) or (pcell == None):
                 del self.parameters[ parm_address ]
@@ -325,7 +326,7 @@ class ConfigManager:
             if type == ConfigurableFunction.Default:  rv = ConfigurableFunction( self, name, **args )
             elif type == ConfigurableFunction.Slider: rv = ConfigurableSliderFunction( self, name, **args )
             else:
-                print>>sys.stderr, "Error, Unknown Configurable Function Type: ", str(type)
+                print("Error, Unknown Configurable Function Type: ", str(type), file=sys.stderr)
                 return None
             self.configurableFunctions[name] = rv
         return rv
@@ -339,12 +340,12 @@ class ConfigManager:
     def saveConfig( self ):
         try:
             f = open( self.cfgFile, 'w' )
-            for config_item in self.parameters.items():
+            for config_item in list(self.parameters.items()):
                 cfg_str = " %s = %s " % ( config_item[0], config_item[1].serialize() )
                 f.write( cfg_str )
             f.close()
         except IOError:
-            print>>sys.stderr, "Can't open config file: %s" % self.cfgFile
+            print("Can't open config file: %s" % self.cfgFile, file=sys.stderr)
 
     def addParameter( self, config_name, **args ):
 #        print '  <<---------------------------------------------------->> Add Parameter: ', config_name, " = ", str( args )
@@ -368,22 +369,22 @@ class ConfigManager:
                 parm = self.parameters.get( cfg_tok[0].strip(), None )
                 if parm: parm.initialize( cfg_tok[1] )
         except IOError:
-            print>>sys.stderr, "Can't open config file: %s" % self.cfgFile
+            print("Can't open config file: %s" % self.cfgFile, file=sys.stderr)
 
     def saveParameterMetadata( self ):
         try:
             parameter_file = open( self.cfgFile, "w")
-            for cf in self.configurableFunctions.values():
+            for cf in list(self.configurableFunctions.values()):
                 parameter_file.write( cf.getParameterMetadata() + '\n' )
             parameter_file.close()
-            print " saved Parameter Metadata to file ", self.cfgFile
+            print(" saved Parameter Metadata to file ", self.cfgFile)
 
-        except Exception, err:
-            print>>sys.stderr, "Can't save parameter metadata: ", str(err)
+        except Exception as err:
+            print("Can't save parameter metadata: ", str(err), file=sys.stderr)
 
     def getStateData(self):
         state_data = [ ]
-        for cf in self.configurableFunctions.values():
+        for cf in list(self.configurableFunctions.values()):
             state_data_elem = cf.serializeState()
             if state_data_elem: state_data.append( state_data_elem )
         return state_data
@@ -397,15 +398,15 @@ class ConfigManager:
     def saveState(self):
         try:
             state_file = open( self.stateFile, "w")
-            for cf in self.configurableFunctions.values():
+            for cf in list(self.configurableFunctions.values()):
                 state_data = cf.serializeState()
                 if state_data:
                     state_file.write( state_data + '\n' )
             state_file.close()
-            print " saved state data to file ", state_file
+            print(" saved state data to file ", state_file)
 
-        except Exception, err:
-            print>>sys.stderr, "Can't save state data: ", str(err)
+        except Exception as err:
+            print("Can't save state data: ", str(err), file=sys.stderr)
 
     def getConfigurationState( self, param_name, **args ):
         parm = self.getParameter( param_name, **args )
@@ -414,7 +415,7 @@ class ConfigManager:
     def getConfigurationData( self, **args ):
         pdata = []
         cell_addr = str( args.get( 'cell', '' ) )
-        for cpi in self.parameters.items():
+        for cpi in list(self.parameters.items()):
             ( key, cell ) = deserialize_address(cpi[0])
             values = cpi[1].getValues()
             if cell == cell_addr:
@@ -424,7 +425,7 @@ class ConfigManager:
     def getConfigurationParms( self, **args ):
         pdata = {}
         cell_addr = str( args.get( 'cell', '' ) )
-        for cpi in self.parameters.items():
+        for cpi in list(self.parameters.items()):
             ( key, cell ) = deserialize_address(cpi[0])
             if cell == cell_addr:
                 pdata[key] = cpi[1]
@@ -437,15 +438,15 @@ class ConfigManager:
                 line = state_file.readline()
                 if line == "": break
                 serializedState = line.split('=')
-                print '  <<---------------------------------------------------->> Restore State: ', serializedState[0], " = ", str( serializedState[1] )
+                print('  <<---------------------------------------------------->> Restore State: ', serializedState[0], " = ", str( serializedState[1] ))
                 cp = self.getParameter( serializedState[0] )
                 cp.restoreState( serializedState[1].strip() )
 
             state_file.close()
             self.initialized = True
 
-        except Exception, err:
-            print>>sys.stderr, "Can't read state data: ", str(err)
+        except Exception as err:
+            print("Can't read state data: ", str(err), file=sys.stderr)
 
     def initDefaultState(self):
         cp = self.getParameter( 'XSlider' )
@@ -466,26 +467,26 @@ class ConfigManager:
 
             parameter_file.close()
 
-        except Exception, err:
-            print>>sys.stderr, "Can't read parameter metadata: ", str(err)
+        except Exception as err:
+            print("Can't read parameter metadata: ", str(err), file=sys.stderr)
 
         return parameter_mdata
 
     def getParameterList( self, **args ):
         var = args.get( 'var', None )
         extra_parms = args.get( 'extras', [] )
-        if var <> None:
-            from Application import getPlotFromVar
+        if var != None:
+            from .Application import getPlotFromVar
             plot = getPlotFromVar( var, cm=self )
         else:
             pass
-            from RectilinearGridPlot import RectGridPlot
-            from PointCloudViewer import CPCPlot
+            from .RectilinearGridPlot import RectGridPlot
+            from .PointCloudViewer import CPCPlot
             p1 = RectGridPlot(cm=self,display=False)
             p2 =  CPCPlot(cm=self,display=False)
         parameter_list = set()
         parameter_list.add( 'Configure' )
-        for cpi in self.parameters.items():
+        for cpi in list(self.parameters.items()):
              basename = get_parameter_name(cpi[0])
              parameter_list.add( basename )
         for pname in extra_parms:
@@ -502,12 +503,12 @@ class ConfigManager:
             self.cfgFile = os.path.join( self.cfgDir, "cpcConfig.txt" )
         else:
             self.readConfig()
-        for config_item in self.parameters.items():
+        for config_item in list(self.parameters.items()):
             self.ConfigCmd( ( "InitParm",  config_item[0], config_item[1] ) )
 
     def getParameterPersistenceList(self):
         plist = []
-        for cfg_item in self.parameters.items():
+        for cfg_item in list(self.parameters.items()):
             key = get_parameter_name(cfg_item[0])
             cfg_spec = cfg_item[1].pack()
             plist.append( ( key, cfg_spec[1] ) )
@@ -521,7 +522,7 @@ class ConfigManager:
 
     def getPersistentParameterSpecs(self):
         plist = []
-        for cfg_item in self.parameters.items():
+        for cfg_item in list(self.parameters.items()):
             key = get_parameter_name(cfg_item[0])
             values_decl = cfg_item[1].values_decl()
             plist.append( ( key, values_decl ) )
@@ -545,12 +546,12 @@ class ConfigParameter:
         self.parent = args.get( 'parent', None )
         self.stateKeyList = []
         self.debug = False
-        if self.parent<> None:
+        if self.parent!= None:
             self.parent.addChild( self )
             self.values.update( self.parent.values )
             self.valueKeyList = list( self.parent.values.keys() )
             plist = makeList( self.parent.getValue(0) )
-            if plist <> None:
+            if plist != None:
                 for pval in plist:
                     if   pval == "vcs.on":    self.setValue('state',1)
                     elif pval == "vcs.off":   self.setValue('state',0)
@@ -578,7 +579,7 @@ class ConfigParameter:
         elif type( stateData ) == dict:
             state = stateData
         else:
-            print>>sys.stderr, "Unrecognized stateData type: ", str( type( stateData ) )
+            print("Unrecognized stateData type: ", str( type( stateData ) ), file=sys.stderr)
             return
         self.values.update( state )
         self.values[ 'init' ] = self.getValues()
@@ -595,14 +596,14 @@ class ConfigParameter:
         try:
             return ( self.ptype, [ str( self.values[key] ) for key in self.valueKeyList ] )
         except KeyError:
-            print "Error packing parameter %s%s. Values = %s " % ( self.name, str(self.valueKeyList), str(self.values))
+            print("Error packing parameter %s%s. Values = %s " % ( self.name, str(self.valueKeyList), str(self.values)))
 
     def unpack( self, value_strs ):
-        if len( value_strs ) <> len( self.values.keys() ):
-            print>>sys.stderr, " Error: parameter structure mismatch in %s ( %d vs %d )" % ( self.name,  len( value_strs ), len( self.values.keys() ) ); sys.stderr.flush()
+        if len( value_strs ) != len( list(self.values.keys()) ):
+            print(" Error: parameter structure mismatch in %s ( %d vs %d )" % ( self.name,  len( value_strs ), len( list(self.values.keys()) ) ), file=sys.stderr); sys.stderr.flush()
         for ( key, str_val ) in zip( self.valueKeyList, value_strs ):
             self.values[key] = deserialize_value( str_val )
-        if self.debug: print " && Unpack parameter %s: %s " % ( self.name, str( self.values ) )
+        if self.debug: print(" && Unpack parameter %s: %s " % ( self.name, str( self.values ) ))
 
     def __len__(self):
         return len(self.values)
@@ -614,7 +615,7 @@ class ConfigParameter:
     def __setitem__(self, key, value ):
         if hasattr( key, 'id' ): key = key.id
         self.values[key] = value
-        if self.debug: print "Parameter[%s]: set value item[%s]: %s " % ( self.name, key, str(value))
+        if self.debug: print("Parameter[%s]: set value item[%s]: %s " % ( self.name, key, str(value)))
         self.addValueKey( key )
 
     def childUpdate( self, source, key, val ):
@@ -622,9 +623,9 @@ class ConfigParameter:
 
     def __call__(self, **args ):
         self.values.update( args )
-        if self.debug: print " && Update parameter %s: %s " % ( self.name, str( self.values ) )
+        if self.debug: print(" && Update parameter %s: %s " % ( self.name, str( self.values ) ))
         args1 = [ self.ptype ]
-        for item in args.items():
+        for item in list(args.items()):
             args1.extend( list(item) )
             self.addValueKey( item[0] )
         args1.append( self.name )
@@ -632,7 +633,7 @@ class ConfigParameter:
 
     def loadConstituent( self, constituent ):
         cvals = self.values.get( constituent, None )
-        if cvals <> None:
+        if cvals != None:
             self.setValues( cvals )
 
     def getName(self):
@@ -646,7 +647,7 @@ class ConfigParameter:
 
     def initialize( self, config_str ):
         self.values = eval( config_str )
-        if self.debug: print " && initialize parameter %s: %s " % ( self.name, str( self.values ) )
+        if self.debug: print(" && initialize parameter %s: %s " % ( self.name, str( self.values ) ))
         self.sort()
 
     def serialize( self ):
@@ -667,14 +668,14 @@ class ConfigParameter:
         if ival == None:
             ival = self.getValues()
             if len( ival ) == 0:
-                ival = self.parent.getInitValue() if ( self.parent <> None ) else None
+                ival = self.parent.getInitValue() if ( self.parent != None ) else None
                 if ( ival == None ):
                     return default_value
         return ival
 
     def setInitValue( self, value, update = False ):
         if type( value ) == dict:
-            for val_item in value.items():
+            for val_item in list(value.items()):
                 self.setValue( val_item[0], val_item[1], update )
         elif ( type( value ) == tuple ):
             if isNumerical( value ):
@@ -694,19 +695,19 @@ class ConfigParameter:
             self.updateValues( tval, update )
         else:
             if self.debug:
-                print "Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val))
+                print("Parameter[%s]: set value[%s]: %s " % ( self.name, key, str(val)))
             self.values[ key ] = val
             self.addValueKey( key )
             if update:
                 args1 = [  self.ptype, key, val, self.name]
                 self.ValueChanged( args1 )
-            if self.parent <> None:
+            if self.parent != None:
                 self.parent.childUpdate( self, key, val,  )
 
     def updateValues( self, value_map, update ):
-        for (key, val1) in value_map.items():
+        for (key, val1) in list(value_map.items()):
             val0 = self.values.get( key, None )
-            if val0 <> val1:
+            if val0 != val1:
                 self.setValue( key, val1, update )
 
     def signalUpdate( self ):
@@ -785,7 +786,7 @@ class WrappedList:
         return self.list
 
     def __set__(self, value):
-        print "Set list %s: %s " % ( self.name, str( value ) )
+        print("Set list %s: %s " % ( self.name, str( value ) ))
         self.list = value
 
     def __len__(self):
@@ -795,7 +796,7 @@ class WrappedList:
         return self.list[key]
 
     def __setitem__(self, key, value ):
-        print "Set list value %s[%s]: %s " % ( self.name, str(key), str( value ) )
+        print("Set list value %s[%s]: %s " % ( self.name, str(key), str( value ) ))
         self.list[key] = value
 
 
@@ -820,7 +821,7 @@ class ConfigurableFunction:
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
         ival = self.value.getInitValue()
-        if (ival <> None):
+        if (ival != None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
         if len( self.initial_value ) == 0:
             self.initial_value = makeList( args.get( 'initValue', None ), self.getValueLength() )
@@ -856,7 +857,7 @@ class ConfigurableFunction:
     def sameGroup( self, config_fn ):
         if id( self ) == id( config_fn ): return False
         if self.name == config_fn.name: return True
-        if (self.group <> None)  and (self.group == config_fn.group): return True
+        if (self.group != None)  and (self.group == config_fn.group): return True
         return False
 
     def getPosition(self):
@@ -909,7 +910,7 @@ class ConfigurableFunction:
 
     def isCompatible( self, config_fn ):
         if config_fn and self.matchUnits:
-            if self.units <> config_fn.units:
+            if self.units != config_fn.units:
                 return False
         return True
 
@@ -917,7 +918,7 @@ class ConfigurableFunction:
         self.value.setValue( new_parameter_value )
 
     def postInstructions( self, message ):
-        print "\n ----- %s -------\n" % message
+        print("\n ----- %s -------\n" % message)
 
     def matches( self, key ):
         return self.active and ( self.key == key )
@@ -941,7 +942,7 @@ class ConfigurableSliderFunction( ConfigurableFunction ):
         self._slider_bounds_relative = True
         self._initial_range = None
         self.position = args.get( 'position', None )
-        if self.initial_value <> None:
+        if self.initial_value != None:
             for index, value in enumerate( self.initial_value ):
                 self.value.setValue( index, value )
 
@@ -1003,23 +1004,23 @@ def encodeToString( obj ):
     rv = None
     try:
         buffer = StringIO()
-        pickler = cPickle.Pickler( buffer )
+        pickler = pickle.Pickler( buffer )
         pickler.dump( obj )
         rv = buffer.getvalue()
         buffer.close()
-    except Exception, err:
-        print>>sys.stderr, "Error pickling object %s: %s" % ( str(obj), str(err) )
+    except Exception as err:
+        print("Error pickling object %s: %s" % ( str(obj), str(err) ), file=sys.stderr)
     return rv
 
 def decodeFromString( string_value, default_value=None ):
     obj = default_value
     try:
         buffer = StringIO( string_value )
-        pickler = cPickle.Unpickler( buffer )
+        pickler = pickle.Unpickler( buffer )
         obj = pickler.load()
         buffer.close()
-    except Exception, err:
-        print>>sys.stderr, "Error unpickling string %s: %s" % ( string_value, str(err) )
+    except Exception as err:
+        print("Error unpickling string %s: %s" % ( string_value, str(err) ), file=sys.stderr)
     return obj
 
 class InputSpecs:
@@ -1191,12 +1192,12 @@ class InputSpecs:
         image_data = self.input()
         origin = image_data.GetOrigin()
         spacing = list( image_data.GetSpacing() )
-        if zscale <> None: spacing[2] = zscale
+        if zscale != None: spacing[2] = zscale
         extent = image_data.GetExtent()
         return [ origin[i/2] + extent[i]*spacing[i/2] for i in range(0,6) ]
 
     def raiseModuleError( self, msg ):
-        print>>sys.stderr, msg
+        print(msg, file=sys.stderr)
         raise Exception( msg )
 
     def getDataValue( self, image_value):
@@ -1259,7 +1260,7 @@ class InputSpecs:
 
     def getFieldData( self ):
         if self.fieldData == None:
-            print>>sys.stderr, ' Uninitialized field data being accessed in ispec[%x]  ' % id(self)
+            print(' Uninitialized field data being accessed in ispec[%x]  ' % id(self), file=sys.stderr)
             self.initializeMetadata()
         return self.fieldData
 
@@ -1274,12 +1275,12 @@ class InputSpecs:
 #            print " updateMetadata: getFieldData, arrays = ", str( arr_names ) ; sys.stdout.flush()
 
             if self.fieldData == None:
-                print>>sys.stderr,  ' NULL field data in updateMetadata: ispec[%x]  ' % id(self)
+                print(' NULL field data in updateMetadata: ispec[%x]  ' % id(self), file=sys.stderr)
                 self.initializeMetadata()
 
             self.metadata = self.computeMetadata( plotIndex )
 
-            if self.metadata <> None:
+            if self.metadata != None:
                 self.rangeBounds = None
                 self.datasetId = self.metadata.get( 'datasetId', None )
                 tval = self.metadata.get( 'timeValue', 0.0 )
@@ -1332,7 +1333,7 @@ class InputSpecs:
             else:
                 try: return mdList[ 0 ]
                 except: pass
-        print>>sys.stderr, "[%s]: Error, Metadata for input %d not found in ispec[%x]  "  % ( self.__class__.__name__,  plotIndex, id(self) )
+        print("[%s]: Error, Metadata for input %d not found in ispec[%x]  "  % ( self.__class__.__name__,  plotIndex, id(self) ), file=sys.stderr)
         return {}
 
     def addMetadataObserver( self, caller, event ):
@@ -1346,21 +1347,21 @@ class InputSpecs:
             mdarray = getStringDataArray( 'metadata' )
             self.fieldData.AddArray( mdarray )
 #            diagnosticWriter.log( self, ' initialize field data in ispec[%x]  ' % id(self) )
-        except Exception, err:
-            print>>sys.stderr, "Error initializing metadata"
+        except Exception as err:
+            print("Error initializing metadata", file=sys.stderr)
 
     def addMetadata( self, metadata ):
         dataVector = self.fieldData.GetAbstractArray( 'metadata' )
         if dataVector == None:
             cname = getClassName( self )
-            if cname <> "InputSpecs":
-                print " Can't get Metadata for class %s " % cname
+            if cname != "InputSpecs":
+                print(" Can't get Metadata for class %s " % cname)
         else:
             enc_mdata = encodeToString( metadata )
             dataVector.InsertNextValue( enc_mdata  )
 
 def getClassName( instance ):
-    return instance.__class__.__name__ if ( instance <> None ) else "None"
+    return instance.__class__.__name__ if ( instance != None ) else "None"
 
 def bound( val, bounds ): return max( min( val, bounds[1] ), bounds[0] )
 
@@ -1379,7 +1380,7 @@ def extractMetadata( fieldData ):
     inputVarList = []
     varlist = fieldData.GetAbstractArray( 'varlist' )
     if varlist == None:   # module.getFieldData()
-        print>>sys.stderr, " Can't get Metadata!"
+        print(" Can't get Metadata!", file=sys.stderr)
     else:
         nvar = varlist.GetNumberOfValues()
         for vid in range(nvar):
@@ -1387,7 +1388,7 @@ def extractMetadata( fieldData ):
             inputVarList.append( varName )
             dataVector = fieldData.GetAbstractArray( 'metadata:%s' % varName )
             if dataVector == None:
-                print>>sys.stderr, " Can't get Metadata for var %s!" % varName
+                print(" Can't get Metadata for var %s!" % varName, file=sys.stderr)
             else:
                 metadata = {}
                 nval = dataVector.GetNumberOfValues()

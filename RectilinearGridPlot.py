@@ -4,15 +4,16 @@ Created on Apr 29, 2014
 @author: tpmaxwel
 '''
 
+from __future__ import print_function
 import sys, vtk, cdms2, traceback, os, cdtime, math
-from ColorMapManager import *
-from Shapefile import shapeFileReader
+from .ColorMapManager import *
+from .Shapefile import shapeFileReader
 #from ImagePlaneAxisAlignedWidget import *
 
-from ImagePlaneWidget import *
-from StructuredGridPlot import  *
-from StructuredDataset import *
-from ConfigurationFunctions import get_scalar_value
+from .ImagePlaneWidget import *
+from .StructuredGridPlot import  *
+from .StructuredDataset import *
+from .ConfigurationFunctions import get_scalar_value
 import numpy as np
 
 LegacyAbsValueTransferFunction = 0
@@ -171,7 +172,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def debug_log(self, msg ):
         if self.pipelineDebug:
-            print " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " %  msg
+            print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " %  msg)
 
     def processOpacityScalingCommand( self, args, config_function = None ):
         opacityRange = config_function.value
@@ -186,7 +187,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "InitConfig":
             state = args[1]
             #print "OpacityScaling InitConfig, state = %d" % state
-            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
+            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ list(self.plotConstituents.keys()), self.processConstituentSelection ] )
             if state:
                 self.cs_bbar.show()
                 #print "Show ConstituentSelectionBar: ", config_function.cfg_state
@@ -200,7 +201,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
-             if self.cs_bbar <> None:
+             if self.cs_bbar != None:
                  self.cs_bbar.hide()
                  self.cs_bbar = None
         elif args and args[0] == "UpdateConfig":
@@ -225,7 +226,7 @@ class RectGridPlot(StructuredGridPlot):
             self.processConfigParameterChange( colorScaleRange )
         elif args and args[0] == "InitConfig":
             state = args[1]
-            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
+            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ list(self.plotConstituents.keys()), self.processConstituentSelection ] )
 #            print "ColorScale InitConfig, state = %d" % state
             if state:
                 self.cs_bbar.show()
@@ -240,7 +241,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
-             if self.cs_bbar <> None:
+             if self.cs_bbar != None:
                  self.cs_bbar.hide()
                  self.cs_bbar = None
                  #print "Hide ConstituentSelectionBar: ", config_function.cfg_state
@@ -252,7 +253,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.generateCTF( cscale )
 #            if self.isConstituentConfigEnabled('Slice') or self.isConstituentConfigEnabled('Surface'):
             self.scaleEnabledColormaps( cscale )
-            for plotItem in self.plotConstituents.items():
+            for plotItem in list(self.plotConstituents.items()):
                 if self.isConstituentConfigEnabled(plotItem[0]):
                     colorScaleRange.setValue( plotItem[0], colorScaleRange.getValues() )
 
@@ -260,9 +261,9 @@ class RectGridPlot(StructuredGridPlot):
         state = args[2]
         param = None
         constituent = args[0]
-        for plotItem in self.plotConstituents.items():
+        for plotItem in list(self.plotConstituents.items()):
             if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] )
-        if param <> None:
+        if param != None:
             prevState = param.getValue( 'ConfigEnabled', 1 )
             param.setValue( 'ConfigEnabled', state )
             #print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
@@ -277,7 +278,7 @@ class RectGridPlot(StructuredGridPlot):
                 interaction_param.loadConstituent( constituent )
 
     def setIsosurfaceLevel( self, value ):
-        if self.levelSetActor <> None:
+        if self.levelSetActor != None:
             if isinstance( value, (list,tuple) ): value = value[0]
             self.levelSetFilter.SetValue ( 0, value )
             self.levelSetFilter.Modified()
@@ -388,7 +389,7 @@ class RectGridPlot(StructuredGridPlot):
                 plane_widget.SetSlicePosition( pos )
             slicePosition.setValues( [ pos ] )
             state =  config_function.getState()
-            if state <> None:
+            if state != None:
                 bbar = self.getPlotButtonbar()
                 button = bbar.getButton( slider_buttons[plane_index] )
                 if state:
@@ -457,9 +458,9 @@ class RectGridPlot(StructuredGridPlot):
             origin = self.input().GetOrigin()
             for ib in [4,5]:
                 self.cropRegion[ib] = ( origin[int(ib/2)] + new_spacing[int(ib/2)]*extent[ib-4] )
-            if (self.volumeMapper <> None) and self.volumeMapper.GetCropping():
+            if (self.volumeMapper != None) and self.volumeMapper.GetCropping():
                 self.cropVolume( False )
-        if ( self.planeWidgetZ <> None ) and self.planeWidgetZ.IsVisible():
+        if ( self.planeWidgetZ != None ) and self.planeWidgetZ.IsVisible():
 #            print " Update planeWidgetZ "
             self.planeWidgetZ.UpdateInputs()
 
@@ -467,7 +468,7 @@ class RectGridPlot(StructuredGridPlot):
         if( self.cropRegion == None ):
             self.cropRegion = self.getVolumeBounds()
         if self.clipper:
-            if ( self.renderWindowInteractor <> None ):
+            if ( self.renderWindowInteractor != None ):
                 self.clipper.SetInteractor( self.renderWindowInteractor )
             self.clipper.PlaceWidget( self.cropRegion )
             self.clipper.GetPlanes( self.clipPlanes )
@@ -525,7 +526,7 @@ class RectGridPlot(StructuredGridPlot):
         if doRender: self.render()
 
     def getZScale( self ):
-        if self.volume <> None:
+        if self.volume != None:
             spacing = self.volume.GetScale()
             sx, sy, sz = spacing
             return [ 1.0, sz, 1 ]
@@ -592,7 +593,7 @@ class RectGridPlot(StructuredGridPlot):
         configFunct = self.configurableFunctions[ 'functionScale' ]
         new_values = self.getDataValues( self._range[0:2] )
         range_values = configFunct.range
-        print "Update Range Values:  %s -> %s, max_opacity = %.2f " % ( str( range_values ), str( new_values ), self.max_opacity )
+        print("Update Range Values:  %s -> %s, max_opacity = %.2f " % ( str( range_values ), str( new_values ), self.max_opacity ))
         for i in range( 2 ): range_values[i] = new_values[i]
         for i in range( 2 ): range_values[i+3] = self.refinement[i]
         range_values[2] = AbsValueTransferFunction # self.transferFunctionConfig.getTransferFunctionType()
@@ -751,7 +752,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.updateTextDisplay( textDisplay )
 
     def enableDualInputs(self):
-        if self.levelSetActor <> None:
+        if self.levelSetActor != None:
             if self.probeFilter == None:
                 ispec = self.getInputSpec( 0 )
                 self.probeFilter = vtk.vtkProbeFilter()
@@ -897,7 +898,7 @@ class RectGridPlot(StructuredGridPlot):
         origin = self.input().GetOrigin()
         ox, oy, oz = origin
         self._range = [ rangeBounds[0], rangeBounds[1], rangeBounds[0], 0 ]
-        print " build Volume Pipeline: range = ", str( self._range )
+        print(" build Volume Pipeline: range = ", str( self._range ))
         dataType = self.input().GetScalarTypeAsString()
         self.pos = [ spacing[i]*extent[2*i] for i in range(3) ]
 #        if ( (origin[0] + self.pos[0]) < 0.0): self.pos[0] = self.pos[0] + 360.0
@@ -965,9 +966,9 @@ class RectGridPlot(StructuredGridPlot):
         always_plot_contours = False
         for contour_input_index in [ 1, 0 ]:
             contour_ispec = self.getInputSpec( contour_input_index )
-            if (contour_ispec <> None) or not always_plot_contours: break
+            if (contour_ispec != None) or not always_plot_contours: break
 
-        contourInput = contour_ispec.input() if ( self.enableContourOverlays and ( contour_ispec <> None ) ) else None
+        contourInput = contour_ispec.input() if ( self.enableContourOverlays and ( contour_ispec != None ) ) else None
         primaryInput = self.input()
         md = self.getInputSpec().getMetadata()
         self.latLonGrid = md.get( 'latLonGrid', True )
@@ -987,7 +988,7 @@ class RectGridPlot(StructuredGridPlot):
         dataType = primaryInput.GetScalarTypeAsString()
         bounds = list(primaryInput.GetBounds())
         origin = primaryInput.GetOrigin()
-        if (dataType <> 'float') and (dataType <> 'double'):
+        if (dataType != 'float') and (dataType != 'double'):
              self.setMaxScalarValue( primaryInput.GetScalarType() )
 #        print "Data Type = %s, range = (%f,%f), extent = %s, origin = %s, bounds=%s, slicePosition=%s" % ( dataType, self.rangeBounds[0], self.rangeBounds[1], str(self.input().GetWholeExtent()), str(origin), str(bounds), str(self.slicePosition)  )
 
@@ -1028,7 +1029,7 @@ class RectGridPlot(StructuredGridPlot):
         self.planeWidgetZ.SetPlaneOrientationToZAxes()
         self.planeWidgetZ.PlaceWidget( bounds )
 
-        if self.planeWidgetZ.HasThirdDimension() and ( self.type <> '3d_vector' ):
+        if self.planeWidgetZ.HasThirdDimension() and ( self.type != '3d_vector' ):
             if (self.planeWidgetX == None):
                 self.planeWidgetX = ScalarSliceWidget( self, picker, 0 )
 #               self.observerTargets.add( self.planeWidgetX )
@@ -1060,7 +1061,7 @@ class RectGridPlot(StructuredGridPlot):
         self.updateOpacity( 'Slice', [1.0, 1.0] )
         self.setColormap( 'Slice', [ 'jet', 1, 0, 0 ] )
 
-        if self.enableContourOverlays and (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
+        if self.enableContourOverlays and (contour_ispec != None) and (contour_ispec.input() != None) and (self.contours == None):
             rangeBounds = self.getRangeBounds( contour_input_index )
             colormapManager = self.getColormapManager( 'Slice', index=contour_input_index )
             self.scaleColormap( 'Slice', rangeBounds, contour_input_index )
@@ -1079,16 +1080,16 @@ class RectGridPlot(StructuredGridPlot):
         self.setBasemapCoastlineLineSpecs( [ 1, 1 ] )
         self.setBasemapCountriesLineSpecs( [ 0, 1 ] )
 
-        if (self.planeWidgetX <> None): self.modifySlicePlaneVisibility( 0, 'x', False )
-        if (self.planeWidgetY <> None): self.modifySlicePlaneVisibility( 1, 'y', False )
-        if (self.planeWidgetZ <> None): self.modifySlicePlaneVisibility( 2, 'z', False )
+        if (self.planeWidgetX != None): self.modifySlicePlaneVisibility( 0, 'x', False )
+        if (self.planeWidgetY != None): self.modifySlicePlaneVisibility( 1, 'y', False )
+        if (self.planeWidgetZ != None): self.modifySlicePlaneVisibility( 2, 'z', False )
 
     def processToggleClippingCommand( self, args, config_function ):
         if args and args[0] == "InitConfig":
             self.toggleClipping( args[1] )
         elif args and args[0] == "Init":
             plane_positions = config_function.initial_value
-            if (plane_positions <> None):
+            if (plane_positions != None):
                 if not self.cropRegion: self.initializeClipper()
                 for ip, pval in enumerate( plane_positions ):
                     self.cropRegion[ip] = pval
@@ -1098,7 +1099,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.toggleClipping( False )
 
     def clipObserver( self, caller=None, event=None ):
-        print " Clip Observer: %s ", str(event)
+        print(" Clip Observer: %s ", str(event))
 
     def startClip( self, caller=None, event=None ):
         pass
@@ -1140,7 +1141,7 @@ class RectGridPlot(StructuredGridPlot):
         pointData = self.input().GetPointData()
         if self.activeLayer:
             pointData.SetActiveScalars( self.activeLayer )
-            print " SetActiveScalars on pointData(%s): %s" % ( str(pointData), self.activeLayer )
+            print(" SetActiveScalars on pointData(%s): %s" % ( str(pointData), self.activeLayer ))
 
     def UpdateCamera( self ):
 #        self.volume.UseBoundsOff()
@@ -1158,7 +1159,7 @@ class RectGridPlot(StructuredGridPlot):
         else: self.volume.VisibilityOff()
         bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
         button = bbar.getButton( 'ToggleVolumePlot' )
-        if button <> None:
+        if button != None:
             button.setButtonState( state, False )
         self.render()
 
@@ -1172,7 +1173,7 @@ class RectGridPlot(StructuredGridPlot):
             self.cursorActor.VisibilityOff()
         bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
         button = bbar.getButton( 'ToggleSurfacePlot' )
-        if button <> None:
+        if button != None:
             button.setButtonState( state, False )
         self.render()
 
@@ -1191,7 +1192,7 @@ class RectGridPlot(StructuredGridPlot):
 #         self.render()
 
     def EventWatcher( self, caller, event ):
-        print "Event %s on class %s "  % ( event, caller.__class__.__name__ )
+        print("Event %s on class %s "  % ( event, caller.__class__.__name__ ))
 #        print "  --- Volume Input Extent: %s " % str( self.input().GetWholeExtent() )
         pass
 
@@ -1237,7 +1238,7 @@ class RectGridPlot(StructuredGridPlot):
         tf_range = self.opacityTransferFunction.GetRange()
         dr = ( tf_range[1] - tf_range[0] ) / nPts
         sValues = [ "%.2f" % self.opacityTransferFunction.GetValue( tf_range[0] + iP * dr ) for iP in range( nPts ) ]
-        print "OTF values: ", ' '.join(sValues)
+        print("OTF values: ", ' '.join(sValues))
 
     def rebuildColorTransferFunction( self, constituent, imageRange ):
 #        print " Rebuild Color Transfer Function[%s]: %s " % ( constituent, str(imageRange) )
@@ -1428,7 +1429,7 @@ class RectGridPlot(StructuredGridPlot):
         return self.generateContours
 
     def setContourDensity( self, ctf_data, **args ):
-        if self.NumContours <> ctf_data[1]:
+        if self.NumContours != ctf_data[1]:
             self.NumContours = ctf_data[1]
             self.updateContourDensity()
 
@@ -1437,7 +1438,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def setZScale( self, zscale_data, input_index = 0, **args ):
         primaryInput = self.setInputZScale( zscale_data, input_index, **args )
-        if self.planeWidgetX <> None:
+        if self.planeWidgetX != None:
             bounds = list( primaryInput.GetBounds() )
             if not self.planeWidgetX.MatchesBounds( bounds ):
                 self.planeWidgetX.PlaceWidget( bounds )
@@ -1449,7 +1450,7 @@ class RectGridPlot(StructuredGridPlot):
     def setInputZScale( self, zscale_data, input_index, **args  ):
         input = StructuredGridPlot.setInputZScale( self, zscale_data, input_index, **args  )
         ispec = self.getInputSpec(  1 )
-        if (ispec <> None) and (ispec.input() <> None):
+        if (ispec != None) and (ispec.input() != None):
             contourInput = ispec.input()
             ix, iy, iz = contourInput.GetSpacing()
             sz = zscale_data[0]
@@ -1458,7 +1459,7 @@ class RectGridPlot(StructuredGridPlot):
         return input
 
     def setConstituentOpacities(self, param, range, **args ):
-        for plotItem in self.plotConstituents.items():
+        for plotItem in list(self.plotConstituents.items()):
             enabled = self.isConstituentConfigEnabled( plotItem[0] )
      #       print "Set Constituent Opacity [%s]: %s " % ( plotItem[0], str( enabled ) )
             if enabled:
@@ -1466,7 +1467,7 @@ class RectGridPlot(StructuredGridPlot):
                 param.setValue( plotItem[0], range )
 
     def initConstituentOpacities(self, param, init_range, **args ):
-        for plotItem in self.plotConstituents.items():
+        for plotItem in list(self.plotConstituents.items()):
             crange = param.getValue( plotItem[0] )
             range = crange if crange else init_range
             self.opacityUpdateCount = 0
@@ -1504,20 +1505,20 @@ class RectGridPlot(StructuredGridPlot):
 
     def enableVisualizationInteraction(self):
 #        print>>sys.stderr, "enable Visualization Interaction"
-        if self.planeWidgetX <> None: self.planeWidgetX.EnableInteraction()
-        if self.planeWidgetY <> None:self.planeWidgetY.EnableInteraction()
-        if self.planeWidgetZ <> None:self.planeWidgetZ.EnableInteraction()
+        if self.planeWidgetX != None: self.planeWidgetX.EnableInteraction()
+        if self.planeWidgetY != None:self.planeWidgetY.EnableInteraction()
+        if self.planeWidgetZ != None:self.planeWidgetZ.EnableInteraction()
 
     def disableVisualizationInteraction(self):
 #        print>>sys.stderr, "disable Visualization Interaction"
-        if self.planeWidgetX <> None: self.planeWidgetX.DisableInteraction()
-        if self.planeWidgetY <> None:self.planeWidgetY.DisableInteraction()
-        if self.planeWidgetZ <> None:self.planeWidgetZ.DisableInteraction()
+        if self.planeWidgetX != None: self.planeWidgetX.DisableInteraction()
+        if self.planeWidgetY != None:self.planeWidgetY.DisableInteraction()
+        if self.planeWidgetZ != None:self.planeWidgetZ.DisableInteraction()
 
     def updatingColormap( self, cmap_index, colormapManager ):
         if cmap_index == 0:
             for widget in ( self.planeWidgetX, self.planeWidgetY, self.planeWidgetZ ):
-                if widget <> None:
+                if widget != None:
                     widget.SetLookupTable( colormapManager.lut )
                     widget.SetTextureInterpolate( colormapManager.smoothColormap )
             self.updateModule()
@@ -1530,7 +1531,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def modifySlicePlaneVisibility( self, slider_index, plane, make_visible=None ):
         plane_index, plane_widget = self.getPlaneWidget( plane )
-        if plane_widget <> None:
+        if plane_widget != None:
             bbar = self.getInteractionButtons()
             if make_visible == None:
                 make_visible = bbar.isSliderVisible( slider_index )
@@ -1590,14 +1591,14 @@ class RectGridPlot(StructuredGridPlot):
 
             # replace outlier numbers
             d = ovar.data
-            d[d==1e+20] = d[d<>1e+20].max()
+            d[d==1e+20] = d[d!=1e+20].max()
 
             img = vtkUtil.vtkImageImportFromArray()
             img.SetArray(ovar.data)
             img.Update()
 
         except Exception:
-            print>>sys.stderr, "Error building Outline Map"
+            print("Error building Outline Map", file=sys.stderr)
             traceback.print_exc()
             return None
 
@@ -1617,21 +1618,21 @@ class RectGridPlot(StructuredGridPlot):
         self.updateInteractionStyle()
         primaryInput = self.input()
         contour_ispec = self.getInputSpec(  1 )
-        contourInput = contour_ispec.input() if ( contour_ispec <> None )  else None
+        contourInput = contour_ispec.input() if ( contour_ispec != None )  else None
 
         if self.enableContourOverlays:
-            if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput, contourInput )
-            if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput, contourInput )
-            if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput )
+            if self.planeWidgetX != None: self.planeWidgetX.SetInput( primaryInput, contourInput )
+            if self.planeWidgetY != None: self.planeWidgetY.SetInput( primaryInput, contourInput )
+            if self.planeWidgetZ != None: self.planeWidgetZ.SetInput( primaryInput, contourInput )
         else:
-            if self.type <> '3d_vector':
-                if self.planeWidgetX <> None: self.planeWidgetX.SetInput( primaryInput )
-                if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput )
-            if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput )
+            if self.type != '3d_vector':
+                if self.planeWidgetX != None: self.planeWidgetX.SetInput( primaryInput )
+                if self.planeWidgetY != None: self.planeWidgetY.SetInput( primaryInput )
+            if self.planeWidgetZ != None: self.planeWidgetZ.SetInput( primaryInput )
 
         if self.type == '3d_vector': self.planeWidgetZ.UpdatePlane()
         if self.baseMapActor: self.baseMapActor.SetVisibility( int( self.enableBasemap ) )
-        if self.volume <> None:
+        if self.volume != None:
             mapper = self.volume.GetMapper()
             if vtk.VTK_MAJOR_VERSION <= 5:  mapper.SetInput(primaryInput)
             else:                           mapper.SetInputData(primaryInput)
@@ -1647,7 +1648,7 @@ class RectGridPlot(StructuredGridPlot):
 #        self.set3DOutput()
 
     def TestObserver( self, caller=None, event = None ):
-        print " Volume Slicer TestObserver: event = %s, " % ( event )
+        print(" Volume Slicer TestObserver: event = %s, " % ( event ))
 
     def getLayerColor( self, type ):
         if type == 'coastline':
@@ -1750,7 +1751,7 @@ class RectGridPlot(StructuredGridPlot):
             contourLineActor.SetOrientation(90,0,90)
 
     def updateContourActorOrientations( self ):
-        for contourLineActorItem in self.contourLineActors.items():
+        for contourLineActorItem in list(self.contourLineActors.items()):
             if contourLineActorItem[1].GetVisibility( ):
                 self.setContourActorOrientation( contourLineActorItem[0], contourLineActorItem[1] )
         self.render()
@@ -1772,13 +1773,13 @@ class RectGridPlot(StructuredGridPlot):
 
 
     def setVisibleContour( self, iAxis ):
-        for contourLineActorItem in self.contourLineActors.items():
+        for contourLineActorItem in list(self.contourLineActors.items()):
             if iAxis == contourLineActorItem[0]:    contourLineActorItem[1].VisibilityOn( )
             else:                                   contourLineActorItem[1].VisibilityOff( )
 
     def setContourVisibility( self, iAxis, isVisible ):
         contourLineActor = self.contourLineActors.get( iAxis, None )
-        if contourLineActor <> None:
+        if contourLineActor != None:
             if isVisible:    contourLineActor.VisibilityOn( )
             else:            contourLineActor.VisibilityOff( )
 
@@ -1804,13 +1805,13 @@ class RectGridPlot(StructuredGridPlot):
         self.ColorLeveler.startWindowLevel( x, y )
 
     def scaleEnabledColormaps( self, ctf_data, cmap_index=0, **args ):
-        for plotItem in self.plotConstituents.items():
+        for plotItem in list(self.plotConstituents.items()):
       #      print " ######################## scaleColormap[%s]  " % ( plotItem[0] )
             if self.isConstituentConfigEnabled(plotItem[0]):
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
 
     def initConstituentColormapScaling( self, param, init_value, cmap_index=0, **args ):
-        for plotItem in self.plotConstituents.items():
+        for plotItem in list(self.plotConstituents.items()):
             cvalue = param.getValue( plotItem[0] )
             value = cvalue if cvalue else init_value
             if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
