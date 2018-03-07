@@ -1118,7 +1118,7 @@ class DV3DPlot():
     def addLogo(self):
         if self.logoRepresentation is None:
             import cdat_info
-            defaultLogoFile = os.path.join(cdat_info.get_prefix(),"share","vcs","uvcdat.png")
+            defaultLogoFile = os.path.join(cdat_info.get_prefix(),"share","vcs","cdat.png")
             reader = vtk.vtkPNGReader()
             reader.SetFileName( defaultLogoFile )
             reader.Update()

@@ -3,7 +3,7 @@ Created on Sep 18, 2013
 
 @author: tpmaxwel
 '''
-from __future__ import print_function
+from __future__ import print_function, division
 import sys, math
 import numpy
 import cdms2, cdutil
@@ -97,7 +97,7 @@ class PointCollection():
         self.point_layout = self.getPointsLayout()
         nz = len( self.lev ) if self.lev else 1
         self.n_input_points = lsize(lat) * nz if ( self.point_layout == PlotType.List ) else lsize(lat) * lsize(lon) * nz
-        if self.istep <= 0: self.istep = max( self.n_input_points / self.max_points, 1 )
+        if self.istep <= 0: self.istep = max( self.n_input_points // self.max_points, 1 )
         if lon.__class__.__name__ == "TransientVariable":
             self.lat_data = lat.flatten()[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat.flatten()[::]
             self.lon_data = lon.flatten()[self.istart::self.istep]
@@ -173,7 +173,7 @@ class PointCollection():
                     self.z_scaling = z_scaling
                     if height_varname: self.hgt_var = height_varname
                     np_points_data_list = []
-                    zstep = stage_height / nz
+                    zstep = stage_height // nz
                     for iz in range( nz ):
                         zvalue = iz * zstep
                         if self.point_layout == PlotType.List:
@@ -440,7 +440,7 @@ class PointCollection():
             if vmin != None:
                 if ( self.threshold_target == 'z' ):
                     nLev = len( self.lev )
-                    rave = (rmin + rmax)/2
+                    rave = (rmin + rmax)//2
                     iLev = int(  nLev * rave  )  if self.levelsAreAscending() else int(  nLev * (1.0-rave)  )
                     lev_val = self.lev[ iLev ]
                     self.thresholded_range = [ lev_val, lev_val ]

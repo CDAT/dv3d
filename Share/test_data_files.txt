@@ -1,0 +1,3 @@
+http://uvcdat.llnl.gov/cdat/sample_data
+aa51aa896ead44019335cebec68e7955  clt.nc
+6df2af50da65d587984aae6a584f3d4f geos5-sample.nc

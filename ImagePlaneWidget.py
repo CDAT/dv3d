@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+from __future__ import print_function, division
 import vtk, sys, gc
 
 VTK_NEAREST_RESLICE = 0
@@ -12,7 +12,7 @@ class DisplayMode:
     VectorGlyph = 2
 
 def getUnscaledWorldExtent( extent, spacing, origin ):
-    return [ ( ( extent[ i ] * spacing[ i/2 ] ) + origin[i/2]  ) for i in range(6) ]
+    return [ ( ( extent[ i ] * spacing[ i//2 ] ) + origin[i//2]  ) for i in range(6) ]
 
 class ImagePlaneWidget:
 

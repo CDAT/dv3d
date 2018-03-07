@@ -9,5 +9,6 @@ setup (name = "DV3D",
        packages = ['DV3D', ],
        package_dir = {'DV3D': '', },
        package_data = package_data,
+       data_files=[('share/dv3d', ('Share/test_data_files.txt',))],
        )
 

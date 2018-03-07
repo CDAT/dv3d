@@ -457,7 +457,7 @@ class RectGridPlot(StructuredGridPlot):
             extent = self.cropZextent if self.cropZextent else self.input().GetExtent()[4:6]
             origin = self.input().GetOrigin()
             for ib in [4,5]:
-                self.cropRegion[ib] = ( origin[int(ib/2)] + new_spacing[int(ib/2)]*extent[ib-4] )
+                self.cropRegion[ib] = ( origin[int(ib//2)] + new_spacing[int(ib//2)]*extent[ib-4] )
             if (self.volumeMapper != None) and self.volumeMapper.GetCropping():
                 self.cropVolume( False )
         if ( self.planeWidgetZ != None ) and self.planeWidgetZ.IsVisible():
@@ -1114,14 +1114,14 @@ class RectGridPlot(StructuredGridPlot):
         for ip in range( np ):
             plane = self.clipPlanes.GetPlane( ip )
             o = plane.GetOrigin()
-            self.cropRegion[ip] = o[ ip/2 ]
+            self.cropRegion[ip] = o[ ip//2 ]
         self.cropVolume()
 
     def cropVolume(self, setCropExtent=True ):
         if setCropExtent:
             spacing = self.input().GetSpacing()
             origin = self.input().GetOrigin()
-            self.cropZextent = [ int( ( self.cropRegion[ip] - origin[ip/2] ) / spacing[ip/2] ) for ip in [4,5] ]
+            self.cropZextent = [ int( ( self.cropRegion[ip] - origin[ip//2] ) // spacing[ip//2] ) for ip in [4,5] ]
         self.volumeMapper.SetCroppingRegionPlanes( self.cropRegion  )
         ToggleClippingParam = self.cfgManager.getParameter( 'ToggleClipping' )
         ToggleClippingParam.setValues( self.cropRegion )
@@ -1236,7 +1236,7 @@ class RectGridPlot(StructuredGridPlot):
     def printOTF( self ):
         nPts = 20
         tf_range = self.opacityTransferFunction.GetRange()
-        dr = ( tf_range[1] - tf_range[0] ) / nPts
+        dr = ( tf_range[1] - tf_range[0] ) // nPts
         sValues = [ "%.2f" % self.opacityTransferFunction.GetValue( tf_range[0] + iP * dr ) for iP in range( nPts ) ]
         print("OTF values: ", ' '.join(sValues))
 

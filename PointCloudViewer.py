@@ -4,7 +4,7 @@ Created on Aug 29, 2013
 @author: tpmaxwel
 '''
 
-from __future__ import print_function
+from __future__ import print_function, division
 import sys, cdms2
 import os.path, traceback, threading, multiprocessing
 import vtk, time
@@ -32,29 +32,29 @@ def dump_np_array1( a, label=None ):
     if label: print(label)
     npts = a.shape[0]
     nrows = 20
-    iSkip = npts/nrows
+    iSkip = npts//nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         print("Pt[%d]: %f  " % ( iPt, a[ iPt ]))
     print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
-        iPt =  npts/2 + ir
+        iPt =  npts//2 + ir
         print("Pt[%d]: %f " % ( iPt, a[ iPt ] ))
     print("-------------------------------------------------------------------------------------------------\n")
 
 def dump_np_array3( a, label=None ):
     print("\n-------------------------------------------------------------------------------------------------")
     if label: print(label)
-    npts = a.shape[0]/3
+    npts = a.shape[0]//3
     nrows = 20
-    iSkip = npts/nrows
+    iSkip = npts//nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         ioff = iPt*3
         print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, a[ ioff ], a[ ioff+1 ], a[ ioff+2 ] ))
     print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
-        iPt =  npts/2 + ir
+        iPt =  npts//2 + ir
         ioff = iPt*3
         print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, a[ ioff ], a[ ioff+1 ], a[ ioff+2 ] ))
     print("-------------------------------------------------------------------------------------------------\n")
@@ -64,14 +64,14 @@ def dump_vtk_array3( a, label=None ):
     if label: print(label)
     npts = a.GetNumberOfTuples()
     nrows = 20
-    iSkip = npts/nrows
+    iSkip = npts//nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         pt = a.GetTuple(iPt)
         print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
     print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
-        iPt =  npts/2 + ir
+        iPt =  npts//2 + ir
         pt = a.GetTuple(iPt)
         print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
     print("-------------------------------------------------------------------------------------------------\n")
@@ -81,14 +81,14 @@ def dump_vtk_array1( a, label=None ):
     if label: print(label)
     npts = a.GetSize()
     nrows = 20
-    iSkip = npts/nrows
+    iSkip = npts//nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         v = a.GetValue(iPt)
         print("Pt[%d]: %.2f  " % ( iPt, v ))
     print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
-        iPt =  npts/2 + ir
+        iPt =  npts//2 + ir
         v = a.GetValue(iPt)
         print("Pt[%d]: %.2f " % ( iPt, v ))
     print("-------------------------------------------------------------------------------------------------\n")
@@ -98,14 +98,14 @@ def dump_vtk_points( pts, label=None ):
     npts = pts.GetNumberOfPoints()
     if label: print(label)
     nrows = 20
-    iSkip = npts/nrows
+    iSkip = npts//nrows
     for ir in range(nrows):
         iPt = iSkip*ir
         pt = pts.GetPoint( iPt )
         print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
     print("-------------------------------------------------------------------------------------------------\n")
     for ir in range(nrows):
-        iPt =  npts/2 + ir
+        iPt =  npts//2 + ir
         pt = pts.GetPoint( iPt )
         print("Pt[%d]: %.2f %.2f, %.2f " % ( iPt, pt[ 0 ], pt[ 1 ], pt[ 2 ] ))
     print("-------------------------------------------------------------------------------------------------\n")
@@ -1373,11 +1373,11 @@ class CPCPlot( DV3DPlot ):
         self.point_cloud_overview.initialize( init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
         nInputPoints = self.point_cloud_overview.getNumberOfInputPoints()
         if ( n_subproc_points > nInputPoints ): n_subproc_points = nInputPoints
-        nPartitions = min( nInputPoints / n_subproc_points, 10  )
+        nPartitions = min( nInputPoints // n_subproc_points, 10  )
         nCollections = min( nPartitions, n_cores-1 )
         print(" Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) ))
         self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
-        self.defvar =  init_args[3]
+        #self.defvar =  init_args[3]
         self.vertVar = None
         self.fetchPlotButtons()
         self.initializeConfiguration()

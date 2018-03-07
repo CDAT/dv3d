@@ -4,7 +4,7 @@ Created on Sep 18, 2013
 @author: tpmaxwel
 '''
 
-from __future__ import print_function
+from __future__ import print_function, division
 import sys, os, traceback
 import numpy
 from cdms2.error import CDMSError
@@ -298,7 +298,7 @@ class vtkPointCloud():
                 self.np_points_data[2::3] =  ptheights
                 vtk_points_data = numpy_support.numpy_to_vtk( self.np_points_data )
                 vtk_points_data.SetNumberOfComponents( 3 )
-                vtk_points_data.SetNumberOfTuples( len( self.np_points_data ) / 3 )
+                vtk_points_data.SetNumberOfTuples( len( self.np_points_data ) // 3 )
                 self.vtk_planar_points.SetData( vtk_points_data )
                 self.polydata.SetPoints( self.vtk_planar_points )
                 self.vtk_planar_points.Modified()
@@ -307,7 +307,7 @@ class vtkPointCloud():
                 vtk_sp_grid_data = numpy_support.numpy_to_vtk( self.np_sp_grid_data )
                 size = vtk_sp_grid_data.GetSize()
                 vtk_sp_grid_data.SetNumberOfComponents( 3 )
-                vtk_sp_grid_data.SetNumberOfTuples( size/3 )
+                vtk_sp_grid_data.SetNumberOfTuples( size//3 )
                 vtk_sp_grid_points = vtk.vtkPoints()
                 vtk_sp_grid_points.SetData( vtk_sp_grid_data )
                 self.vtk_spherical_points = vtk.vtkPoints()
@@ -356,7 +356,7 @@ class vtkPointCloud():
 #             return
         size = vtk_sp_grid_data.GetSize()
         vtk_sp_grid_data.SetNumberOfComponents( 3 )
-        vtk_sp_grid_data.SetNumberOfTuples( size/3 )
+        vtk_sp_grid_data.SetNumberOfTuples( size//3 )
         vtk_sp_grid_points = vtk.vtkPoints()
         vtk_sp_grid_points.SetData( vtk_sp_grid_data )
         self.vtk_spherical_points = vtk.vtkPoints()
@@ -373,7 +373,7 @@ class vtkPointCloud():
 #            self.printLogMessage( " init scalar range %s " % str(self.vrange) )
 
     def getNumberOfPoints(self):
-        return len( self.np_points_data ) / 3
+        return len( self.np_points_data ) // 3
 
     def getPoints( self, **args ):
         if self.topo == PlotType.Spherical:
@@ -945,7 +945,7 @@ class vtkPartitionedPointCloud:
 def kill_all_zombies():
 #                                              Cleanup abandoned processes
     import subprocess, signal
-    proc_specs = subprocess.check_output('ps').split('\n')
+    proc_specs = str(subprocess.check_output('ps')).split('\n')
     for proc_spec in proc_specs:
         if 'uvcdat' in proc_spec:
             pid = int( proc_spec.split()[0] )

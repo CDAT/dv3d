@@ -4,6 +4,7 @@ Created on Apr 29, 2014
 @author: tpmaxwel
 '''
 
+from __future__ import division
 import sys, vtk, cdms2, traceback, os, cdtime, math
 from .ColorMapManager import *
 from .Shapefile import shapeFileReader
@@ -471,14 +472,14 @@ class VolumePlot(StructuredGridPlot):
         for ip in range( np ):
             plane = planes.GetPlane( ip )
             o = plane.GetOrigin()
-            self.cropRegion[ip] = o[ ip/2 ]
+            self.cropRegion[ip] = o[ ip//2 ]
         self.cropVolume()
 
     def cropVolume(self, setCropExtent=True ):
         if setCropExtent:
             spacing = self.input().GetSpacing()
             origin = self.input().GetOrigin()
-            self.cropZextent = [ int( ( self.cropRegion[ip] - origin[ip/2] ) / spacing[ip/2] ) for ip in [4,5] ]
+            self.cropZextent = [ int( ( self.cropRegion[ip] - origin[ip//2] ) / spacing[ip//2] ) for ip in [4,5] ]
         self.volumeMapper.SetCroppingRegionPlanes( self.cropRegion  )
         self.render()
 

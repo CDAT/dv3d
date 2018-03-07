@@ -3,12 +3,17 @@ Created on May 9, 2014
 
 @author: tpmaxwel
 '''
-from __future__ import print_function
+from __future__ import print_function, division
 import sys, vtk, cdms2, traceback, os, cdtime, pickle, copy
 from io import StringIO
 import numpy as np
 import inspect, ast
 from weakref import WeakSet, WeakKeyDictionary
+
+try:
+    basestring
+except Exception:
+    basestring = str
 
 SLICE_WIDTH_LR_COMP = [ 'xlrwidth', 'ylrwidth', 'zlrwidth' ]
 SLICE_WIDTH_HR_COMP = [ 'xhrwidth', 'yhrwidth', 'zhrwidth' ]
@@ -27,9 +32,12 @@ SLIDER_MAX_VALUE = 100
 MAX_IMAGE_SIZE = 1000000
 
 def get_scalar_value( tvals ):
-    if hasattr( tvals, '__iter__' ):
+    if isinstance(tvals,basestring):
+        return tvals
+    try:
         return get_scalar_value( tvals[0] )
-    else: return tvals
+    except Exception:
+        return tvals
 
 def isNumerical( vals ):
     for val in vals:
@@ -1003,11 +1011,7 @@ def getStringDataArray( name, values = [] ):
 def encodeToString( obj ):
     rv = None
     try:
-        buffer = StringIO()
-        pickler = pickle.Pickler( buffer )
-        pickler.dump( obj )
-        rv = buffer.getvalue()
-        buffer.close()
+        rv = pickle.dumps( obj )
     except Exception as err:
         print("Error pickling object %s: %s" % ( str(obj), str(err) ), file=sys.stderr)
     return rv
@@ -1015,10 +1019,7 @@ def encodeToString( obj ):
 def decodeFromString( string_value, default_value=None ):
     obj = default_value
     try:
-        buffer = StringIO( string_value )
-        pickler = pickle.Unpickler( buffer )
-        obj = pickler.load()
-        buffer.close()
+        obj = pickle.loads(string_value)
     except Exception as err:
         print("Error unpickling string %s: %s" % ( string_value, str(err) ), file=sys.stderr)
     return obj
@@ -1194,7 +1195,7 @@ class InputSpecs:
         spacing = list( image_data.GetSpacing() )
         if zscale != None: spacing[2] = zscale
         extent = image_data.GetExtent()
-        return [ origin[i/2] + extent[i]*spacing[i/2] for i in range(0,6) ]
+        return [ origin[i//2] + extent[i]*spacing[i//2] for i in range(0,6) ]
 
     def raiseModuleError( self, msg ):
         print(msg, file=sys.stderr)
@@ -1393,7 +1394,7 @@ def extractMetadata( fieldData ):
                 metadata = {}
                 nval = dataVector.GetNumberOfValues()
                 for id in range(nval):
-                    enc_mdata = str( dataVector.GetValue(id) )
+                    enc_mdata = dataVector.GetValue(id)
                     md = decodeFromString( enc_mdata )
                     metadata.update( md )
                 mdList.append( metadata )

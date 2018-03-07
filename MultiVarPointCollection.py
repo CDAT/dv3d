@@ -3,7 +3,7 @@ Created on Sep 18, 2013
 
 @author: tpmaxwel
 '''
-from __future__ import print_function
+from __future__ import print_function, division
 import sys, math
 import numpy
 import cdms2, cdutil
@@ -203,7 +203,7 @@ class MultiVarPointCollection():
 #        print "Process Coordinates, lat = %s%s, lon = %s%s " % ( lat.id, str(lat.shape), lon.id, str(lon.shape)  )
         nz = len( self.lev ) if self.lev else 1
         self.n_input_points = lsize(lat) * nz if ( self.point_layout == PlotType.List ) else lsize(lat) * lsize(lon) * nz
-        if self.istep <= 0: self.istep = max( self.n_input_points / self.max_points, 1 )
+        if self.istep <= 0: self.istep = max( self.n_input_points // self.max_points, 1 )
         if lon.__class__.__name__ == "TransientVariable":
             self.lat_data = lat.flatten()[self.istart::self.istep] if ( self.point_layout == PlotType.List ) else lat.flatten()[::]
             self.lon_data = lon.flatten()[self.istart::self.istep]
@@ -288,7 +288,7 @@ class MultiVarPointCollection():
     #                print " setPointHeights: zdata shape = %s " % str( zdata.shape ); sys.stdout.flush()
                     self.vertical_bounds = ( zdata.min(), zdata.max() )
                     if self.data_height == None: self.data_height = ( self.vertical_bounds[1] - self.vertical_bounds[0] )
-                    self.point_data_arrays['z'] = zdata * ( stage_height / self.data_height )
+                    self.point_data_arrays['z'] = zdata * ( stage_height // self.data_height )
                 else:
                     print("Can't find height var: %s " % height_varname, file=sys.stderr)
             else:
@@ -296,7 +296,7 @@ class MultiVarPointCollection():
                     self.z_scaling = z_scaling
                     if height_varname: self.hgt_var = height_varname
                     np_points_data_list = []
-                    zstep = stage_height / nz
+                    zstep = stage_height // nz
 #                    print "  -----> SetPointHeights: z_scaling=%s, stage_height=%s" % ( str(z_scaling), str(stage_height) )
                     for iz in range( nz ):
                         zvalue = iz * zstep
@@ -608,7 +608,7 @@ class MultiVarPointCollection():
                 if not vmin is None:
                     if ( threshold_target == 'z' ):
                         nLev = len( self.lev )
-                        rave = (rmin + rmax)/2
+                        rave = (rmin + rmax)//2
                         iLev = int(  nLev * rave  )  if self.levelsAreAscending() else int(  nLev * (1.0-rave)  )
                         lev_val = self.lev[ iLev ]
                         self.thresholded_range[var_data_id] = [ lev_val, lev_val ]

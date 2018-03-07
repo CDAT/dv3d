@@ -48,7 +48,7 @@ class MemoryLogger:
         if self.enabled:
             gc.collect()
             args = ['ps', 'u', '-p', str(os.getpid())]
-            psout = subprocess.check_output( args ).split('\n')
+            psout = str(subprocess.check_output( args )).split('\n')
             ps_vals = psout[1].split()
             try:
                 mem_usage_MB = float( ps_vals[5] ) / 1024.0
