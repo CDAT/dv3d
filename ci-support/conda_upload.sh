@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-PKG_NAME=vcs
+PKG_NAME=dv3d
 USER=cdat
 VERSION="2.12"
 ESMF_CHANNEL="nesii/label/dev-esmf"
