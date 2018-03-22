@@ -27,6 +27,6 @@ class DV3DTest(unittest.TestCase):
             ref = ref.decode("utf-8")
         except:
             pass
-        print("IMGS:",img, ref)
+        # print("IMGS:",img, ref)
         ret = checkimage.check_result_image(img, ref)
         self.assertEqual(ret+p.returncode,0)
