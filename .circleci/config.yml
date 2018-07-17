@@ -1,0 +1,128 @@
+version: 2
+
+checkout:
+  post:
+    - ./ci-support/checkout_merge_commit.sh
+        
+aliases:
+  - &setup_miniconda
+    name: setup_miniconda
+    command: |
+      mkdir -p workspace
+      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
+      
+  - &get_testdata
+    name: get_testdata
+    command: | 
+      ls -l  workspace
+      git clone git://github.com/cdat/uvcdat-testdata
+      
+  - &create_conda_env
+    name: create_conda_env
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       conda config --set always_yes yes --set changeps1 no
+       conda update -y -q conda
+       conda config --set anaconda_upload no
+       conda create -q -n py2 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python<3"
+       conda install -q -n py2 -c cdat/label/nightly -c conda-forge mesalib
+       conda create -q -n py3 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python>3"
+       conda install -q -n py3 -c cdat/label/nightly -c conda-forge mesalib
+
+
+  - &setup_dv3d
+    name: setup_dv3d
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       export UVCDAT_ANONYMOUS_LOG=False
+       source activate py2
+       python setup.py install
+       source activate py3
+       python setup.py install
+
+  - &run_dv3d_tests
+    name: run_dv3d_tests
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       export UVCDAT_ANONYMOUS_LOG=False
+       export UVCDAT_SETUP_PATH=${HOME}
+       source activate py2
+       python run_tests.py -v2 -n 2 --checkout-baseline -H
+       RESULT=$?
+       echo "**** py2 test result: "${RESULT}
+       source activate py3
+       python run_tests.py -n 2 --checkout-baseline -H
+       PY3_RESULT=$?
+       echo "**** py3 test result: "${PY3_RESULT}
+       RESULT=$(( $RESULT + $PY3_RESULT))
+       exit $RESULT
+
+  - &conda_upload
+    name: conda_upload
+    command: |
+       if [[ $CIRCLE_BRANCH != 'master' ]]; then
+          exit 0
+       fi
+       export PATH=${HOME}/project/$WORKDIR/miniconda/bin:$PATH
+       conda install conda-build anaconda-client
+       conda config --set anaconda_upload no
+       export CONDA_BLD_PATH=`pwd`/conda_build
+       git clone git://github.com/cdat/conda-recipes
+       cd conda-recipes
+       export PKG_NAME=dv3d
+       export USER=cdat
+       export VERSION=8.0
+       export LABEL=nightly
+       python ./prep_for_build.py -l $VERSION
+       conda build $PKG_NAME -c cdat/label/nightly -c conda-forge -c cdat --python=2
+       conda build $PKG_NAME -c cdat/label/nightly -c conda-forge -c cdat --python=3.6
+       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/$OS/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+
+jobs:
+  macos_dv3d:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: workspace/test_macos_vcs
+      OS: "osx-64"
+    steps:
+      - checkout
+      - run: *setup_miniconda 
+      - run: *get_testdata
+      - run: *create_conda_env
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
+      - run: *conda_upload
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+
+  linux_dv3d:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: workspace/test_linux_vcs
+      OS: "linux-64"
+    steps:
+      - checkout
+      - run: *setup_miniconda 
+      - run: *get_testdata
+      - run: *create_conda_env
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
+      - run: *conda_upload
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+
+workflows:
+  version: 2
+  dv3d:
+    jobs:
+      - macos_dv3d
+      - linux_dv3d
+
+
+
+

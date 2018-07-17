@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import unittest
 import subprocess
-import checkimage
+from cdat_info import checkImage
 import shlex
 
 class DV3DTest(unittest.TestCase):
@@ -28,5 +28,5 @@ class DV3DTest(unittest.TestCase):
         except:
             pass
         # print("IMGS:",img, ref)
-        ret = checkimage.check_result_image(img, ref)
+        ret = checkImage(img, None, "", "", ref, pngReady=True, pngPathSet=True)
         self.assertEqual(ret+p.returncode,0)
