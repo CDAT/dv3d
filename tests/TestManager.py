@@ -15,7 +15,7 @@ sys.path.append(pth)
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
 
-
+# Just a test
 class TestManager:
 
     DefinedTests = collections.OrderedDict()
