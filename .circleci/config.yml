@@ -182,7 +182,7 @@ jobs:
       - run: *create_conda_env
       - run: *setup_dv3d
       - run: *run_dv3d_tests
-      - run: *run_coveralls
+      #- run: *run_coveralls
       - store_artifacts:
           path: tests_html
           destination: tests_html
@@ -192,7 +192,7 @@ jobs:
 
 workflows:
   version: 2
-  vcs:
+  dv3d:
     jobs:
       - macos_dv3d_py2
       - macos_dv3d_py3:
