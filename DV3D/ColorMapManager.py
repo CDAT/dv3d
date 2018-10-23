@@ -8,8 +8,10 @@ from __future__ import print_function
 import os.path
 import sys, vtk, copy
 import pickle
-
-pkl_path = os.path.join( os.path.dirname( __file__ ), 'data', 'colormaps.pkl' )
+import pkg_resources
+dv3d_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("dv3d"), "data")
+print("EGG:",dv3d_egg_path)
+pkl_path = os.path.join( dv3d_egg_path, 'colormaps.pkl' )
 colormap_file = open( pkl_path, 'rb' )
 try:
     colormaps = pickle.load( colormap_file, encoding='latin1' )
