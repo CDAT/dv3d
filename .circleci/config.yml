@@ -33,6 +33,7 @@ aliases:
        else
           conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" nbsphinx easydev $COVERAGE_PKGS
        fi 
+       rm -rf $WORKDIR/miniconda/envs/$PY_VER/lib/python?.?/site-packages/DV3D*
 
   - &setup_dv3d
     name: setup_dv3d
