@@ -87,6 +87,18 @@ aliases:
        conda build $PKG_NAME $CHANNELS
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
+       python ./prep_for_build.py -l $VERSION
+       conda build $PKG_NAME $CHANNELS
+       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+
+  - &run_coveralls
+    name: run_coveralls
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       source activate $PY_VER
+       coveralls
+       source deactivate
+
 jobs:
   macos_dv3d_py2:
     macos:
@@ -182,7 +194,7 @@ jobs:
       - run: *create_conda_env
       - run: *setup_dv3d
       - run: *run_dv3d_tests
-      #- run: *run_coveralls
+      - run: *run_coveralls
       - store_artifacts:
           path: tests_html
           destination: tests_html
