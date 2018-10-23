@@ -88,7 +88,7 @@ aliases:
        anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
 jobs:
-  macos_vcs_py2:
+  macos_dv3d_py2:
     macos:
       xcode: "9.2.0"
     filters:
@@ -96,7 +96,7 @@ jobs:
         ignore:
           - master
     environment:
-      WORKDIR: "workspace/test_macos_vcs_py2"
+      WORKDIR: "workspace/test_macos_dv3d_py2"
       OS: "osx-64"
       PY_VER: "py2"
       TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
@@ -105,8 +105,8 @@ jobs:
       - run: *setup_miniconda
       - run: *get_testdata
       - run: *create_conda_env
-      - run: *setup_vcs
-      - run: *run_vcs_tests
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
       - store_artifacts:
           path: tests_html
           destination: tests_html
@@ -114,7 +114,7 @@ jobs:
           path: tests_png
           destination: tests_png
 
-  macos_vcs_py3:
+  macos_dv3d_py3:
     macos:
       xcode: "9.2.0"
     filters:
@@ -122,7 +122,7 @@ jobs:
         ignore:
           - master
     environment:
-      WORKDIR: "workspace/test_macos_vcs_py3"
+      WORKDIR: "workspace/test_macos_dv3d_py3"
       OS: "osx-64"
       PY_VER: "py3"
       TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
@@ -131,8 +131,8 @@ jobs:
       - run: *setup_miniconda
       - run: *get_testdata
       - run: *create_conda_env
-      - run: *setup_vcs
-      - run: *run_vcs_tests
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
       - store_artifacts:
           path: tests_html
           destination: tests_html
@@ -140,11 +140,11 @@ jobs:
           path: tests_png
           destination: tests_png
 
-  linux_vcs_py2:
+  linux_dv3d_py2:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_linux_vcs_py2"
+      WORKDIR: "workspace/test_linux_dv3d_py2"
       OS: "linux-64"
       PY_VER: "py2"
     steps:
@@ -152,8 +152,8 @@ jobs:
       - run: *setup_miniconda
       - run: *get_testdata
       - run: *create_conda_env
-      - run: *setup_vcs
-      - run: *run_vcs_tests
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
       - run: *conda_upload
       - store_artifacts:
           path: tests_html
@@ -162,7 +162,7 @@ jobs:
           path: tests_png
           destination: tests_png
 
-  linux_vcs_py3:
+  linux_dv3d_py3:
     filters:
       branches:
         ignore:
@@ -170,7 +170,7 @@ jobs:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_linux_vcs_py3"
+      WORKDIR: "workspace/test_linux_dv3d_py3"
       OS: "linux-64"
       PY_VER: "py3"
       COVERAGE: "-c tests/coverage.json --coverage-from-repo"
@@ -180,8 +180,8 @@ jobs:
       - run: *setup_miniconda
       - run: *get_testdata
       - run: *create_conda_env
-      - run: *setup_vcs
-      - run: *run_vcs_tests
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
       - run: *run_coveralls
       - store_artifacts:
           path: tests_html
@@ -194,11 +194,11 @@ workflows:
   version: 2
   vcs:
     jobs:
-      - macos_vcs_py2
-      - macos_vcs_py3:
+      - macos_dv3d_py2
+      - macos_dv3d_py3:
            requires:
-              - macos_vcs_py2
-      - linux_vcs_py2
-      - linux_vcs_py3:
+              - macos_dv3d_py2
+      - linux_dv3d_py2
+      - linux_dv3d_py3:
            requires:
-              - linux_vcs_py2
+              - linux_dv3d_py2
