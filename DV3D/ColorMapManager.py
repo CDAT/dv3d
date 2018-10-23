@@ -9,8 +9,7 @@ import os.path
 import sys, vtk, copy
 import pickle
 import pkg_resources
-dv3d_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("dv3d"), "data")
-print("EGG:",dv3d_egg_path)
+dv3d_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("dv3d"), "share/dv3d")
 pkl_path = os.path.join( dv3d_egg_path, 'colormaps.pkl' )
 colormap_file = open( pkl_path, 'rb' )
 try:

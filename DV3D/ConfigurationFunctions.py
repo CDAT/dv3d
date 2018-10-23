@@ -9,6 +9,8 @@ from io import StringIO
 import numpy as np
 import inspect, ast
 from weakref import WeakSet, WeakKeyDictionary
+import pkg_resources
+dv3d_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("dv3d"), "share/dv3d")
 
 try:
     basestring
@@ -18,13 +20,11 @@ except Exception:
 SLICE_WIDTH_LR_COMP = [ 'xlrwidth', 'ylrwidth', 'zlrwidth' ]
 SLICE_WIDTH_HR_COMP = [ 'xhrwidth', 'yhrwidth', 'zhrwidth' ]
 
-packagePath = os.path.dirname( __file__ )
-DataDir = os.path.join( packagePath, 'data' )
+DataDir = dv3d_egg_path
 defaultMapDir = DataDir
 defaultOutlineMapFile = os.path.join( defaultMapDir,  'political_map.png' )
 
-packagePath = os.path.dirname( __file__ )
-defaultMapDir = os.path.join( packagePath, 'data' )
+defaultMapDir = dv3d_egg_path
 defaultLogoFile = os.path.join( defaultMapDir,  'uvcdat.jpg' )
 defaultMapFile = os.path.join( defaultMapDir,  'earth2k.jpg' )
 defaultMapCut = -180

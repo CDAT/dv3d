@@ -9,9 +9,10 @@ import os.path
 import vtk, time
 import numpy as np
 import os, vtk
+import pkg_resources
+dv3d_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("dv3d"), "share/dv3d")
 
-packagePath = os.path.dirname( __file__ )
-defaultMapDir = os.path.join( packagePath, 'data' )
+defaultMapDir = dv3d_egg_path
 defaultMapFile = os.path.join( defaultMapDir,  'earth2k.jpg' )
 defaultMapCut = -180
 

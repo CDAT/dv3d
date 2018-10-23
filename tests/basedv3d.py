@@ -10,8 +10,8 @@ class DV3DTest(unittest.TestCase):
         p = subprocess.Popen(shlex.split(cmd),stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         o,e = p.communicate()
 
-        print("ERRORS:",e)
-        print("OUTPUT:",o)
+        print("ERRORS:",e.decode("utf-8"))
+        print("OUTPUT:",o.decode("utf-8"))
         sp = o.split()
         for i,s in enumerate(sp[:-2]):
             try:
