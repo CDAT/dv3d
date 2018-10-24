@@ -85,12 +85,12 @@ aliases:
        fi
        ln -s ../recipe $PKG_NAME
        python ./prep_for_build.py -l $VERSION
-       conda build $PKG_NAME $CHANNELS
-       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
-
-       python ./prep_for_build.py -l $VERSION
-       conda build $PKG_NAME $CHANNELS
-       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+       if [[ $PY_VER = 'py2' ]]; then
+          conda build $PKG_NAME $CHANNELS --python=2.7
+       else
+          conda build $PKG_NAME $CHANNELS --python=3.6
+       fi
+       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/$OS/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
   - &run_coveralls
     name: run_coveralls
@@ -104,10 +104,6 @@ jobs:
   macos_dv3d_py2:
     macos:
       xcode: "9.2.0"
-    filters:
-      branches:
-        ignore:
-          - master
     environment:
       WORKDIR: "workspace/test_macos_dv3d_py2"
       OS: "osx-64"
@@ -120,6 +116,7 @@ jobs:
       - run: *create_conda_env
       - run: *setup_dv3d
       - run: *run_dv3d_tests
+      - run: *conda_upload
       - store_artifacts:
           path: tests_html
           destination: tests_html
@@ -130,10 +127,6 @@ jobs:
   macos_dv3d_py3:
     macos:
       xcode: "9.2.0"
-    filters:
-      branches:
-        ignore:
-          - master
     environment:
       WORKDIR: "workspace/test_macos_dv3d_py3"
       OS: "osx-64"
@@ -146,6 +139,7 @@ jobs:
       - run: *create_conda_env
       - run: *setup_dv3d
       - run: *run_dv3d_tests
+      - run: *conda_upload
       - store_artifacts:
           path: tests_html
           destination: tests_html
@@ -176,10 +170,6 @@ jobs:
           destination: tests_png
 
   linux_dv3d_py3:
-    filters:
-      branches:
-        ignore:
-          - master
     machine:
       image: circleci/classic:latest
     environment:
@@ -196,6 +186,7 @@ jobs:
       - run: *setup_dv3d
       - run: *run_dv3d_tests
       - run: *run_coveralls
+      - run: *conda_upload
       - store_artifacts:
           path: tests_html
           destination: tests_html
