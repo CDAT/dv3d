@@ -53,13 +53,6 @@ aliases:
        python run_tests.py -v2 -n 2 --checkout-baseline -H
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
-       if [[ $PY_VER = 'py3' ]]; then
-          cd docs
-          make doctest
-          DOC_RESULT=$?
-          echo "*** $PY_VER doc test result: "${DOC_RESULT}
-          RESULT=$(( $RESULT + $DOC_RESULT ))
-       fi
        exit $RESULT
 
   - &conda_upload

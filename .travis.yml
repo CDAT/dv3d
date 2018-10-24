@@ -12,17 +12,17 @@ before_install:
 script:
 - export UVCDAT_ANONYMOUS_LOG=False
 - export UVCDAT_SETUP_PATH=${HOME}
-- conda create -q -n py2 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python<3"
-- conda install -q -n py2 -c cdat/label/nightly -c conda-forge mesalib
-- conda create -q -n py3 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python>3"
-- conda install -q -n py3 -c cdat/label/nightly -c conda-forge mesalib
+- conda create -q -n py2 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python<3" mesalib
+- rm -rf $HOME/miniconda/envs/py2/lib/python?.?/site-packages/DV3D*
+- conda create -q -n py3 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python>3" mesalib
+- rm -rf $HOME/miniconda/envs/py3/lib/python?.?/site-packages/DV3D*
 - echo $TRAVIS_BRANCH
 - export TRAVIS_PR_BRANCH=$TRAVIS_BRANCH
 - echo $TRAVIS_EVENT_TYPE
 - echo $TRAVIS_PULL_REQUEST
 - source activate py2
 - python setup.py install
-- git clone git://github.com/uv-cdat/uvcdat-testdata
+- git clone git://github.com/cdat/uvcdat-testdata
 - cd uvcdat-testdata ; git checkout $TRAVIS_BRANCH ; cd ..
 - df -h
 - python run_tests.py -v2 -n2 --checkout-baseline
