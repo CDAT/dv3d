@@ -7,6 +7,7 @@ from __future__ import print_function
 from .ColorMapManager import *
 from .ButtonBarWidget import *
 import vtk, traceback, time, threading
+import vcs
 MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
@@ -1118,7 +1119,7 @@ class DV3DPlot():
     def addLogo(self):
         if self.logoRepresentation is None:
             import cdat_info
-            defaultLogoFile = os.path.join(cdat_info.get_prefix(),"share","vcs","cdat.png")
+            defaultLogoFile = os.path.join(vcs.vcs_egg_path,"cdat.png")
             reader = vtk.vtkPNGReader()
             reader.SetFileName( defaultLogoFile )
             reader.Update()

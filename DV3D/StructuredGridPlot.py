@@ -11,6 +11,8 @@ from .Shapefile import shapeFileReader
 from .StructuredVariableReader import StructuredDataReader
 from .DV3DPlot import *
 from .MapManager import MapManager
+import pkg_resources
+dv3d_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("dv3d"), "share/dv3d")
 
 class StructuredGridPlot(DV3DPlot):
 
@@ -270,7 +272,8 @@ class StructuredGridPlot(DV3DPlot):
             resTypes = [ "invisible", "low", "medium", "high" ]
             if (thickness > 0) and ( density > 0 ):
                 rgb=self.getLayerColor( type )
-                textFilePath = os.path.join( os.path.dirname(__file__), "data", type, "index.txt" )
+                print("TYPEEEEEEEEP", type)
+                textFilePath = os.path.join( dv3d_egg_path, type, "index.txt" )
                 s=shapeFileReader()
                 s.setColors(rgb)
                 s.setWidth( thickness )

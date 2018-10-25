@@ -20,25 +20,27 @@ aliases:
       
   - &create_conda_env
     name: create_conda_env
+    environment:
+       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
+       PKGS: cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" mesalib
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
        conda config --set anaconda_upload no
-       conda create -q -n py2 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python<3"
-       conda install -q -n py2 -c cdat/label/nightly -c conda-forge mesalib
-       conda create -q -n py3 -c cdat/label/nightly -c conda-forge -c cdat cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil vtk-cdat cdutil vcs "proj4<5" "python>3"
-       conda install -q -n py3 -c cdat/label/nightly -c conda-forge mesalib
-
+       if [[ $PY_VER = "py2" ]]; then
+          conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python<3"
+       else
+          conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" nbsphinx easydev $COVERAGE_PKGS
+       fi 
+       rm -rf $WORKDIR/miniconda/envs/$PY_VER/lib/python?.?/site-packages/DV3D*
 
   - &setup_dv3d
     name: setup_dv3d
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export UVCDAT_ANONYMOUS_LOG=False
-       source activate py2
-       python setup.py install
-       source activate py3
+       source activate $PY_VER
        python setup.py install
 
   - &run_dv3d_tests
@@ -47,19 +49,16 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export UVCDAT_ANONYMOUS_LOG=False
        export UVCDAT_SETUP_PATH=${HOME}
-       source activate py2
-       python run_tests.py -v2 -n 2 --checkout-baseline -H
+       source activate $PY_VER
+       python run_tests.py -v2 -n 2 --checkout-baseline -H $COVERAGE
        RESULT=$?
-       echo "**** py2 test result: "${RESULT}
-       source activate py3
-       python run_tests.py -n 2 --checkout-baseline -H
-       PY3_RESULT=$?
-       echo "**** py3 test result: "${PY3_RESULT}
-       RESULT=$(( $RESULT + $PY3_RESULT))
+       echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
 
   - &conda_upload
     name: conda_upload
+    environment:
+       CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
     command: |
        if [[ $CIRCLE_BRANCH != 'master' ]]; then
           exit 0
@@ -74,39 +73,77 @@ aliases:
        export USER=cdat
        export VERSION=8.0
        export LABEL=nightly
+       if [[ -d $PKG_NAME ]]; then
+          rm -rf $PKG_NAME
+       fi
+       ln -s ../recipe $PKG_NAME
        python ./prep_for_build.py -l $VERSION
-       conda build $PKG_NAME -c cdat/label/nightly -c conda-forge -c cdat --python=2
-       conda build $PKG_NAME -c cdat/label/nightly -c conda-forge -c cdat --python=3.6
-       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/$OS/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+       conda build $PKG_NAME $CHANNELS
+       anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/noarch/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+
+  - &run_coveralls
+    name: run_coveralls
+    command: |
+       export PATH=$WORKDIR/miniconda/bin:$PATH
+       source activate $PY_VER
+       coveralls
+       source deactivate
 
 jobs:
-  macos_dv3d:
+  macos_dv3d_py2:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: workspace/test_macos_vcs
+      WORKDIR: "workspace/test_macos_dv3d_py2"
       OS: "osx-64"
+      PY_VER: "py2"
+      TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
     steps:
       - checkout
-      - run: *setup_miniconda 
+      - run: *setup_miniconda
       - run: *get_testdata
       - run: *create_conda_env
       - run: *setup_dv3d
       - run: *run_dv3d_tests
-      - run: *conda_upload
       - store_artifacts:
           path: tests_html
           destination: tests_html
+      - store_artifacts:
+          path: tests_png
+          destination: tests_png
 
-  linux_dv3d:
+  macos_dv3d_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "workspace/test_macos_dv3d_py3"
+      OS: "osx-64"
+      PY_VER: "py3"
+      TEMP_PKGS: "'ffmpeg>4' 'libpng>1.6.34'" 
+    steps:
+      - checkout
+      - run: *setup_miniconda
+      - run: *get_testdata
+      - run: *create_conda_env
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+      - store_artifacts:
+          path: tests_png
+          destination: tests_png
+
+  linux_dv3d_py2:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: workspace/test_linux_vcs
+      WORKDIR: "workspace/test_linux_dv3d_py2"
       OS: "linux-64"
+      PY_VER: "py2"
     steps:
       - checkout
-      - run: *setup_miniconda 
+      - run: *setup_miniconda
       - run: *get_testdata
       - run: *create_conda_env
       - run: *setup_dv3d
@@ -115,14 +152,43 @@ jobs:
       - store_artifacts:
           path: tests_html
           destination: tests_html
+      - store_artifacts:
+          path: tests_png
+          destination: tests_png
+
+  linux_dv3d_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "workspace/test_linux_dv3d_py3"
+      OS: "linux-64"
+      PY_VER: "py3"
+      COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+      COVERAGE_PKGS: "coverage coveralls"
+    steps:
+      - checkout
+      - run: *setup_miniconda
+      - run: *get_testdata
+      - run: *create_conda_env
+      - run: *setup_dv3d
+      - run: *run_dv3d_tests
+      - run: *run_coveralls
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+      - store_artifacts:
+          path: tests_png
+          destination: tests_png
 
 workflows:
   version: 2
   dv3d:
     jobs:
-      - macos_dv3d
-      - linux_dv3d
-
-
-
-
+      - macos_dv3d_py2
+      - macos_dv3d_py3:
+           requires:
+              - macos_dv3d_py2
+      - linux_dv3d_py2
+      - linux_dv3d_py3:
+           requires:
+              - linux_dv3d_py2

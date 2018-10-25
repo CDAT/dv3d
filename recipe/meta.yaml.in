@@ -1,0 +1,33 @@
+package:
+    name: dv3d
+    version: "@VERSION@"
+
+source:
+    git_rev: @UVCDAT_BRANCH@
+    git_url: git://github.com/cdat/dv3d.git
+
+build:
+  number: @BUILD_NUMBER@
+  script: python setup.py install
+  noarch: python
+ 
+requirements:
+  build:
+    - python
+    - setuptools
+    - pip
+  run:
+    - python
+    - vtk-cdat
+    - cdms2
+    - cdutil
+
+about:
+    home:  http://github.com/cdat/dv3d
+    summary: >
+        A version of DV3D customized for the UVIS framework. Removes dependencies on Qt and vistrails. Integrates structured and unstructured grid plotting. Introduces VTK-only interaction widgets. Integrates all structured grid visualization modes (slice, surface, volume) in a single plot.
+    license: BSD
+    license_file: bsd-3-clause.txt
+
+
+

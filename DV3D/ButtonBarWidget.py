@@ -8,10 +8,9 @@ from __future__ import print_function
 import vtk, os, sys, collections
 import numpy as np
 from .ConfigurationFunctions import *
-
-PackagePath = os.path.dirname( __file__ )
-DataDir = os.path.join( PackagePath, 'data' )
-ButtonDir = os.path.join( DataDir, 'buttons' )
+import pkg_resources
+dv3d_egg_path = pkg_resources.resource_filename(pkg_resources.Requirement.parse("dv3d"), "share/dv3d")
+ButtonDir = os.path.join( dv3d_egg_path, 'buttons' )
 
 class OriginPosition:
     Upper_Left = [ 0, 1 ]
