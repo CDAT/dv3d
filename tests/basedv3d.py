@@ -3,10 +3,16 @@ import unittest
 import subprocess
 from cdat_info import checkImage
 import shlex
+import os
 
 class DV3DTest(unittest.TestCase):
     def runTest(self, name):
-        cmd = "python tests/dv3d_execute_test.py {} False uvcdat-testdata/baselines/dv3d".format(name)
+        if "COVERAGE_PROCESS_START" in os.environ:
+            runner = "coverage run -a"
+        else:
+            runner = "python"
+        cmd = "{} tests/dv3d_execute_test.py {} False uvcdat-testdata/baselines/dv3d".format(runner, name)
+        print("COMMMAND:",cmd)
         p = subprocess.Popen(shlex.split(cmd),stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         o,e = p.communicate()
 

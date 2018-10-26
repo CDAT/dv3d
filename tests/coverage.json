@@ -1,3 +1,4 @@
 {
-   "include": ["DV3D"]
+   "include": ["DV3D"],
+   "scripts": ["tests/dv3d_execute_test.py"]
 }
