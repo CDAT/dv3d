@@ -50,7 +50,7 @@ aliases:
        export UVCDAT_ANONYMOUS_LOG=False
        export UVCDAT_SETUP_PATH=${HOME}
        source activate $PY_VER
-       python run_tests.py -v2 -n 2 --checkout-baseline -H
+       python run_tests.py -v2 -n 2 --checkout-baseline -H $COVERAGE
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT} 
        exit $RESULT
