@@ -42,7 +42,7 @@ class TestManager:
             test.writeCMakeDef( f )
         f.close()
 
-    def runTest(self, testName, interactive=False, baselinedir=None ):
+    def runTest(self, testName, interactive='False', baselinedir=None ):
         test = TestManager.DefinedTests.get( testName, None )
         if test is None:
             print("Can't find test named '%s'" % testName, file=sys.stderr)
@@ -54,7 +54,8 @@ class TestManager:
                 '.'.join( [ test.name, 'png' ] )  )
         print("Running test %s, interactive= %s, baselinedir= %s" % ( testName,\
                 str(interactive), str(baselinedir) ))
-        img = test.test( ast.literal_eval(interactive) )
+        r = ast.literal_eval(interactive)
+        img = test.test(r)
         print("TEST RETURNED IMG:",img[0], img[1])
 
 

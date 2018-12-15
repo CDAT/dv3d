@@ -501,6 +501,8 @@ class RectGridPlot(StructuredGridPlot):
         self.clipper.Off()
 
     def toggleClipping( self, enableClipping ):
+        if (self.volume == None):
+            self.buildVolumePipeline()
         self.clipping_enabled = enableClipping
         if self.clipping_enabled:
             self.volumeMapper.CroppingOn()
@@ -512,15 +514,16 @@ class RectGridPlot(StructuredGridPlot):
         return [ ';'.join( self.volRenderConfig ) ]
 
     def setVolRenderCfg( self, config_str, doRender = True ):
+        print("setVolRenderCfg")
         if config_str:
             self.volRenderConfig = getItem( config_str ).strip('[]').split(';')
-        renderMode = vtk.vtkSmartVolumeMapper.TextureRenderMode
-        if self.volRenderConfig[0] == 'RayCastAndTexture':
-            renderMode = vtk.vtkSmartVolumeMapper.RayCastAndTextureRenderMode
-        elif self.volRenderConfig[0] == 'RayCast':
+        renderMode = vtk.vtkSmartVolumeMapper.DefaultRenderMode
+        if self.volRenderConfig[0] == 'RayCast':
             renderMode = vtk.vtkSmartVolumeMapper.RayCastRenderMode
-        elif self.volRenderConfig[0] == 'Texture3D':
-            renderMode = vtk.vtkSmartVolumeMapper.TextureRenderMode
+        elif self.volRenderConfig[0] == 'GPU':
+            renderMode = vtk.vtkSmartVolumeMapper.GPURenderMode
+        elif self.volRenderConfig[0] == 'OSPray':
+            renderMode = vtk.vtkSmartVolumeMapper.OSPRayRenderMode
         self.volumeMapper.SetRequestedRenderMode( renderMode )
         self.volumeProperty.SetShade( self.volRenderConfig[1] == str(True) )
         if doRender: self.render()
@@ -1018,7 +1021,7 @@ class RectGridPlot(StructuredGridPlot):
             else:
                 self.planeWidgetZ = ScalarSliceWidget( self, picker, 0 )
             self.planeWidgetZ.SetRenderer( self.renderer )
-            self.planeWidgetZ.SetRenderer( self.renderer )
+
 #            self.observerTargets.add( self.planeWidgetZ )
             prop3 = self.planeWidgetZ.GetPlaneProperty()
             prop3.SetColor(0, 0, 1)
@@ -1253,7 +1256,8 @@ class RectGridPlot(StructuredGridPlot):
 #                lut_index = (nc-i-1) if self.invert else i
             color = lut.GetTableValue( i )
             self.colorTransferFunction.AddRGBPoint( data_value, color[0], color[1], color[2] )
-#            if i % 20 == 0:  print "   --- ctf[%d] --  %.2e: ( %.2f %.2f %.2f ) " % ( i, data_value, color[0], color[1], color[2] )
+            # if i % 20 == 0:
+            #     print("   --- ctf[%d] --  %.2e: ( %.2f %.2f %.2f ) " % ( i, data_value, color[0], color[1], color[2]))
 
 
 #    def PrintStats(self):
@@ -1847,5 +1851,3 @@ class RectGridPlot(StructuredGridPlot):
         wsize = self.renderer.GetSize()
         range = self.ColorLeveler.windowLevel( x, y, wsize )
         return range
-
-

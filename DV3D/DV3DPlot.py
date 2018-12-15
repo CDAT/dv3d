@@ -610,7 +610,7 @@ class DV3DPlot():
             bbar.hide()
 
     def processAnimationCommand( self, args, config_function = None ):
-#        print " processAnimationCommand, args = ", str( args ), ", animating = ", str(self.animating)
+#        print(" processAnimationCommand, args = ", str( args ), ", animating = ", str(self.animating))
         runSpeed = config_function.value
         if args and args[0] == "StartConfig":
             pass
@@ -1155,6 +1155,10 @@ class DV3DPlot():
         self.renderWindowInteractor =  rendWinInteractor
         self.renderer = vtk.vtkRenderer()
         renWin.AddRenderer( self.renderer )
+
+        self.renderer.RemoveAllLights()
+        kit = vtk.vtkLightKit()
+        kit.AddLightsToRenderer(self.renderer)
 
         self.interactorStyle = vtk.vtkInteractorStyleTrackballCamera( )
         self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )

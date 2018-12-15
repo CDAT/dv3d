@@ -137,7 +137,7 @@ class Button:
         event = args.get( 'event', 'StateChangedEvent' )
         self.buttonWidget.AddObserver( event, observer )
 
-    def setToggleProps(self, state = None ):
+    def setToggleProps(self):
         if self.toggle:
             prop = self.buttonRepresentation.GetProperty()
             opacity = 0.4 if ( self.getState() == 0 ) else 1.0
@@ -209,14 +209,22 @@ class Button:
 #             print " Button %s off " % self.id
 
     def activate(self):
+        '''
+        Activates the button and shows it.
+        '''
         if self.visible:
             self.active = True
             self.buttonWidget.On()
+            self.buttonRepresentation.SetVisibility(1)
 #        print " Button %s on " % self.id
 
     def deactivate(self):
+        '''
+        Deativates the button and hides it.
+        '''
         self.active = False
         self.Off()
+        self.buttonRepresentation.SetVisibility(0)
 
 class ButtonBarHandler:
 
@@ -414,7 +422,10 @@ class ButtonBar:
 
     def show( self, **args ):
         self.visible = True
-        for button in self.buttons: button.On()
+        for button in self.buttons:
+            button.On()
+            if button.active:
+                button.buttonRepresentation.SetVisibility(1)
 
     def setVisibility( self, isVisible ):
         for button in self.buttons:
@@ -435,6 +446,7 @@ class ButtonBar:
         self.visible = False
         for button in self.buttons:
             button.Off()
+            button.buttonRepresentation.SetVisibility(0)
 
     def toggleVisibility(self):
         if self.visible:
@@ -482,11 +494,13 @@ class ControlBar(ButtonBar):
         if button:
             if activate: button.activate()
             else: button.deactivate()
-        if state != None:
-            button.setToggleState( state )
+            if state != None:
+                button.setToggleState( state )
+        else:
+            print("No button {}".format(button_name))
 
     def addButton( self, bspec, **args ):
-        if hasattr(bspec, "__iter__"):
+        if hasattr(bspec, "__iter__") and type(bspec) is not str:
             bnames = bspec
         else: bnames = [ bspec ]
         toggle = args.get( 'toggle', False )

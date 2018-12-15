@@ -70,12 +70,13 @@ class ListWidget:
         self.visible = True
         for button in list(self.buttons.keys()):
             button.On()
-#            button.Render()
+            button.GetRepresentation().SetVisibility(1)
 
     def hide(self):
         self.visible = False
         for button in list(self.buttons.keys()):
             button.Off()
+            button.GetRepresentation().SetVisibility(0)
 
     def toggleVisibility( self, **args ):
         state = args.get( 'state', None )

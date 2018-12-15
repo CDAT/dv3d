@@ -1,4 +1,3 @@
-
 from __future__ import print_function, division
 import vtk, sys, gc
 
@@ -606,6 +605,7 @@ class ImagePlaneWidget:
 
         if (  not  self.TexturePlaneProperty ):
             self.TexturePlaneProperty  = vtk.vtkProperty()
+            self.TexturePlaneProperty.SetDiffuse(0)
             self.TexturePlaneProperty.SetAmbient(1)
             self.TexturePlaneProperty.SetInterpolationToFlat()
 

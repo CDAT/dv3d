@@ -1,4 +1,3 @@
-
 from __future__ import print_function, division
 import vtk, sys, gc
 
@@ -624,6 +623,7 @@ class ImagePlaneWidget:
 
         if (  not  self.TexturePlaneProperty ):
             self.TexturePlaneProperty  = vtk.vtkProperty()
+            self.TexturePlaneProperty.SetDiffuse(0)
             self.TexturePlaneProperty.SetAmbient(1)
             self.TexturePlaneProperty.SetInterpolationToFlat()
 
@@ -1408,7 +1408,7 @@ class ImagePlaneWidget:
             else:                           texturePlaneMapper.SetInputData( self.PlaneSource.GetOutput() )
 
             self.Texture.SetQualityTo32Bit()
-            self.Texture.MapColorScalarsThroughLookupTableOff()
+            self.Texture.SetColorModeToDefault()
             self.Texture.SetInterpolate(self.TextureInterpolate)
             self.Texture.RepeatOff()
             self.Texture.SetLookupTable(self.LookupTable)
@@ -1747,7 +1747,6 @@ class VectorSliceWidget(ImagePlaneWidget):
             self.glyphMapper.OrientOn ()
 #            self.glyphMapper.ClampingOn()
             self.glyphMapper.SourceIndexingOff()
-            self.glyphMapper.NestedDisplayListsOff()
             self.glyphMapper.UseSelectionIdsOff()
             self.glyphMapper.SetInputConnection( self.cutter.GetOutputPort() )
             self.glyphMapper.SetLookupTable( self.LookupTable )
@@ -2046,4 +2045,3 @@ class LICSliceWidget(ImagePlaneWidget):
     def updateScaling( self, render = False ):
         if render:
             self.Interactor.Render()
-
