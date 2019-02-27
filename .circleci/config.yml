@@ -22,7 +22,7 @@ aliases:
     name: create_conda_env
     environment:
        CHANNELS: "-c cdat/label/nightly -c conda-forge -c cdat"
-       PKGS: cdms2 cdat_info udunits2 testsrunner matplotlib numpy=1.14 genutil 'vtk-cdat>8.1' cdutil vcs "proj4<5" mesalib
+       PKGS: cdms2 cdat_info udunits2 testsrunner matplotlib numpy genutil vtk-cdat cdutil vcs "proj4<5" mesalib
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
@@ -31,7 +31,7 @@ aliases:
        if [[ $PY_VER = "py2" ]]; then
           conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python<3"
        else
-          conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python>3" nbsphinx easydev $COVERAGE_PKGS
+          conda create -q -n $PY_VER $CHANNELS $PKGS $TEMP_PKGS "python=3.6" nbsphinx easydev $COVERAGE_PKGS
        fi 
        rm -rf $WORKDIR/miniconda/envs/$PY_VER/lib/python?.?/site-packages/DV3D*
 
