@@ -74,7 +74,7 @@ aliases:
        conda deactivate
 
 jobs:
-   linux_dv3d:
+   linux_dv3d_ORIG:
       machine:
          image: circleci/classic:latest
       environment:
@@ -101,8 +101,177 @@ jobs:
          - run: *run_coveralls
          - run: *conda_upload
 
+   macos_setup:
+      macos:
+         xcode: "11.3.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         LAST_STABLE: "8.2"
+         BUILD_VARIANT_VER: "noarch"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *conda_rerender
+         - run: *conda_build
+         - persist_to_workspace:
+              root: .
+              paths: 
+                 - macos_build
+
+   linux_setup:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         LAST_STABLE: "8.2"
+         BUILD_VARIANT_VER: "noarch"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *conda_rerender
+         - run: *conda_build
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - linux_build
+
+   macos_dv3d_py2:
+      macos:
+         xcode: "11.3.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         ENV_NAME: "test_dv3d"
+         CONDA_PY_VER: "python<3"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *setup_run_tests
+         - run: *get_testdata
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+
+   macos_dv3d_py37:
+      macos:
+         xcode: "11.3.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         ENV_NAME: "test_dv3d"
+         CONDA_PY_VER: "python>=3.7,<3.8"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *setup_run_tests
+         - run: *get_testdata
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+
+   linux_dv3d_py2:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         ENV_NAME: "test_dv3d"
+         CONDA_PY_VER: "python<3"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *setup_run_tests
+         - run: *get_testdata
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+
+   linux_dv3d_py37:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         ENV_NAME: "test_dv3d"
+         CONDA_PY_VER: "python>=3.7,<3.8"
+         COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+         COVERAGE_PKGS: "coverage coveralls"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *setup_run_tests
+         - run: *get_testdata
+         - run: *run_tests
+         #- run: *run_coveralls
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+
+   upload:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "dv3d"
+         VERSION: "8.2"
+         USER: "cdat"
+         LABEL: "nightly"
+      steps:
+         - attach_workspace:
+              at: .
+         - run: pwd
+         - run: *conda_upload
+
 workflows:
    version: 2
    dv3d:
       jobs:
-         - linux_dv3d
+         - macos_setup
+         - linux_setup
+         - macos_dv3d_py2:
+              requires:
+                 - macos_setup
+         - macos_dv3d_py37:
+              requires:
+                 - macos_setup
+         - linux_dv3d_py2:
+              requires:
+                 - linux_setup
+         - linux_dv3d_py37:
+              requires:
+                 - linux_setup
+         - upload:
+              requires:
+                 - macos_dv3d_py2
+                 - macos_dv3d_py37
+                 - linux_dv3d_py2
+                 - linux_dv3d_py37
+
+
