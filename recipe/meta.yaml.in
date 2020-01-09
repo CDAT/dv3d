@@ -15,7 +15,6 @@ requirements:
   build:
     - python
     - setuptools
-    - pip
   run:
     - python
     - vtk-cdat
@@ -24,7 +23,7 @@ requirements:
 
 test:
   commands:
-    - python -c "import cdutil"
+    - python -c "import dv3d"
 
 about:
     home:  http://github.com/cdat/dv3d

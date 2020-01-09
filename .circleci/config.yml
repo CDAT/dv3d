@@ -6,7 +6,6 @@ aliases:
     command: |
        mkdir -p workspace
        git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-       # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
        python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
 
   - &conda_rerender
@@ -24,6 +23,7 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        conda config --add channels conda-forge --force
+       conda config --add channels cdat/label/nightly --force
        conda config --set channel_priority strict
        BUILD_SCRIPT="$WORKDIR/conda-recipes/build_tools/conda_build.py"
        python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME --build_version $BUILD_VARIANT_VER --do_build
@@ -37,7 +37,6 @@ aliases:
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       conda config --add channels cdat/label/nightly --force
        conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $PKGS $COVERAGE_PKGS
        conda activate $ENV_NAME
        conda list
@@ -85,7 +84,7 @@ jobs:
          # for conda_upload
          VERSION: "8.2"
          USER: "cdat"
-         LABEL: "linatest"
+         LABEL: "nightly"
       steps:
          - checkout
          - run: *setup_miniconda
