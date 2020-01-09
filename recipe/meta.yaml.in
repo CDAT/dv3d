@@ -14,7 +14,6 @@ build:
 requirements:
   build:
     - python
-    - pip
     - setuptools
   run:
     - python
@@ -24,7 +23,7 @@ requirements:
 
 test:
   commands:
-    - python -c "import dv3d"
+    - python -c "import DV3D"
 
 about:
     home:  http://github.com/cdat/dv3d
