@@ -57,9 +57,9 @@ aliases:
   - &conda_upload
     name: conda_upload
     command: |
-       #if [[ $CIRCLE_BRANCH != "master" ]]; then
-       #   exit 0
-       #fi
+       if [[ $CIRCLE_BRANCH != "master" ]]; then
+          exit 0
+       fi
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
@@ -74,33 +74,6 @@ aliases:
        conda deactivate
 
 jobs:
-   linux_dv3d_ORIG:
-      machine:
-         image: circleci/classic:latest
-      environment:
-         WORKDIR: "/home/circleci/project/workdir"
-         PKG_NAME: "dv3d"
-         ENV_NAME: "test_dv3d"
-         LAST_STABLE: "8.2"
-         CONDA_PY_VER: "python>=3.7,<3.8"
-         BUILD_VARIANT_VER: "noarch"
-         COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-         COVERAGE_PKGS: "coverage coveralls"
-         # for conda_upload
-         VERSION: "8.2"
-         USER: "cdat"
-         LABEL: "nightly"
-      steps:
-         - checkout
-         - run: *setup_miniconda
-         - run: *conda_rerender
-         - run: *conda_build
-         - run: *get_testdata
-         - run: *setup_run_tests
-         - run: *run_tests
-         - run: *run_coveralls
-         - run: *conda_upload
-
    macos_setup:
       macos:
          xcode: "11.3.0"
@@ -226,7 +199,7 @@ jobs:
          - run: *setup_run_tests
          - run: *get_testdata
          - run: *run_tests
-         #- run: *run_coveralls
+         - run: *run_coveralls
          - store_artifacts:
               path: tests_html
               destination: tests_html
