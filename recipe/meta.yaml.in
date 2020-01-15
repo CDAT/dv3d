@@ -15,12 +15,15 @@ requirements:
   build:
     - python
     - setuptools
-    - pip
   run:
     - python
     - vtk-cdat
     - cdms2
     - cdutil
+
+test:
+  commands:
+    - python -c "import DV3D"
 
 about:
     home:  http://github.com/cdat/dv3d
