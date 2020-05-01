@@ -5,7 +5,7 @@ aliases:
     name: setup_miniconda
     command: |
        mkdir -p workspace
-       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+       git clone -b validateNightlyNew git@github.com:CDAT/cdat workspace/cdat
        python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
 
   - &conda_rerender
@@ -32,12 +32,17 @@ aliases:
     name: setup_run_tests
     environment:
        # PKGS: "cdms2 cdat_info udunits2 testsrunner matplotlib numpy genutil vtk-cdat cdutil vcs 'proj4<5' mesalib"
-       PKGS: "cdms2 cdat_info testsrunner genutil vtk-cdat cdutil vcs mesalib"
+       PKGS: "testsrunner genutil cdutil"
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $PKGS $COVERAGE_PKGS
+       if [[ `uname` == "Linux" ]]; then
+          MESA="mesalib=18.3.1"
+       else
+          MESA="mesalib=17.3.9"
+       fi
+       conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $MESA $PKGS $COVERAGE_PKGS "libnetcdf=*=nompi_*"
        conda activate $ENV_NAME
        conda list
 
