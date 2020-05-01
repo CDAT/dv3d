@@ -32,7 +32,9 @@ aliases:
     name: setup_run_tests
     environment:
        # PKGS: "cdms2 cdat_info udunits2 testsrunner matplotlib numpy genutil vtk-cdat cdutil vcs 'proj4<5' mesalib"
-       PKGS: "testsrunner genutil cdutil"
+       # Note that installing vcs can be problematic here because vcs depends on dv3d
+       # 
+       PKGS: "testsrunner genutil cdutil vcs"
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
@@ -62,9 +64,9 @@ aliases:
   - &conda_upload
     name: conda_upload
     command: |
-       if [[ $CIRCLE_BRANCH != "master" ]]; then
-          exit 0
-       fi
+       #if [[ $CIRCLE_BRANCH != "master" ]]; then
+       #   exit 0
+       #fi
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
@@ -81,7 +83,7 @@ aliases:
 jobs:
    macos_setup:
       macos:
-         xcode: "11.3.0"
+         xcode: "11.4.0"
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
@@ -117,15 +119,15 @@ jobs:
               paths:
                  - linux_build
 
-   macos_dv3d_py2:
+   macos_dv3d_py36:
       macos:
-         xcode: "11.3.0"
+         xcode: "11.4.0"
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
          REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
-         CONDA_PY_VER: "python<3"
+         CONDA_PY_VER: "python>=3.6,<3.7"
       steps:
          - checkout
          - attach_workspace:
@@ -142,7 +144,7 @@ jobs:
 
    macos_dv3d_py37:
       macos:
-         xcode: "11.3.0"
+         xcode: "11.4.0"
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
@@ -163,7 +165,30 @@ jobs:
              path: tests_png
              destination: tests_png
 
-   linux_dv3d_py2:
+   macos_dv3d_py38:
+      macos:
+         xcode: "11.4.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         ENV_NAME: "test_dv3d"
+         CONDA_PY_VER: "python>=3.8,<3.9"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *setup_run_tests
+         - run: *get_testdata
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+
+   linux_dv3d_py36:
       machine:
          image: circleci/classic:latest
       environment:
@@ -171,7 +196,7 @@ jobs:
          PKG_NAME: "dv3d"
          REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
-         CONDA_PY_VER: "python<3"
+         CONDA_PY_VER: "python>=3.6,<3.7"
       steps:
          - checkout
          - attach_workspace:
@@ -195,6 +220,29 @@ jobs:
          REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.7,<3.8"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *setup_run_tests
+         - run: *get_testdata
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+
+   linux_dv3d_py38:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "dv3d"
+         REPO_NAME: "dv3d"
+         ENV_NAME: "test_dv3d"
+         CONDA_PY_VER: "python>=3.8,<3.9"
          COVERAGE: "-c tests/coverage.json --coverage-from-repo"
          COVERAGE_PKGS: "coverage coveralls"
       steps:
@@ -233,23 +281,29 @@ workflows:
       jobs:
          - macos_setup
          - linux_setup
-         - macos_dv3d_py2:
+         - macos_dv3d_py36:
               requires:
                  - macos_setup
          - macos_dv3d_py37:
               requires:
                  - macos_setup
-         - linux_dv3d_py2:
+         - macos_dv3d_py38:
+              requires:
+                 - macos_setup
+         - linux_dv3d_py36:
               requires:
                  - linux_setup
          - linux_dv3d_py37:
               requires:
                  - linux_setup
+         - linux_dv3d_py38:
+              requires:
+                 - linux_setup
          - upload:
               requires:
-                 - macos_dv3d_py2
+                 - macos_dv3d_py36
                  - macos_dv3d_py37
-                 - linux_dv3d_py2
+                 - macos_dv3d_py38
+                 - linux_dv3d_py36
                  - linux_dv3d_py37
-
-
+                 - linux_dv3d_py38
