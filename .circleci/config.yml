@@ -132,7 +132,6 @@ jobs:
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.6,<3.7"
          LIBNETCDF: "libnetcdf=*=nompi_*"
@@ -156,7 +155,6 @@ jobs:
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.7,<3.8"
          LIBNETCDF: "libnetcdf=*=nompi_*"
@@ -180,7 +178,6 @@ jobs:
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.8,<3.9"
          LIBNETCDF: "libnetcdf=*=nompi_*"
@@ -204,7 +201,6 @@ jobs:
       environment:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.6,<3.7"
          LIBNETCDF: "libnetcdf=*=nompi_*"
@@ -228,7 +224,6 @@ jobs:
       environment:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.7,<3.8"
          LIBNETCDF: "libnetcdf=*=nompi_*"
@@ -252,11 +247,10 @@ jobs:
       environment:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.8,<3.9"
-         #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
-         #COVERAGE_PKGS: "coverage coveralls"
+         COVERAGE: "-c tests/coverage.json --coverage-from-repo"
+         COVERAGE_PKGS: "coverage coveralls"
          LIBNETCDF: "libnetcdf=*=nompi_*"
       steps:
          - checkout
@@ -265,7 +259,7 @@ jobs:
          - run: *setup_run_tests
          - run: *get_testdata
          - run: *run_tests
-         #- run: *run_coveralls
+         - run: *run_coveralls
          - store_artifacts:
               path: tests_html
               destination: tests_html
@@ -282,7 +276,6 @@ jobs:
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.6,<3.7"
          LIBNETCDF: "libnetcdf=*=mpi_mpich_*"
@@ -306,7 +299,6 @@ jobs:
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.7,<3.8"
          LIBNETCDF: "libnetcdf=*=mpi_mpich_*"
@@ -330,7 +322,6 @@ jobs:
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.8,<3.9"
          LIBNETCDF: "libnetcdf=*=mpi_mpich_*"
@@ -354,7 +345,6 @@ jobs:
       environment:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.6,<3.7"
          LIBNETCDF: "libnetcdf=*=mpi_mpich_*"
@@ -378,7 +368,6 @@ jobs:
       environment:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.7,<3.8"
          LIBNETCDF: "libnetcdf=*=mpi_mpich_*"
@@ -402,7 +391,6 @@ jobs:
       environment:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "dv3d"
-         REPO_NAME: "dv3d"
          ENV_NAME: "test_dv3d"
          CONDA_PY_VER: "python>=3.8,<3.9"
          #COVERAGE: "-c tests/coverage.json --coverage-from-repo"
