@@ -8,7 +8,16 @@ os = $(shell uname)
 pkg_name = dv3d
 build_script = conda-recipes/build_tools/conda_build.py
 
+#
+# packages to be installed in test environment
+#
 test_pkgs = testsrunner genutil vcs coverage coveralls
+ifeq ($(os),Linux)
+pkgs = "mesalib=18.3.1"
+else
+pkgs = "mesalib=17.3.9"
+endif
+
 last_stable ?= 8.2
 
 conda_env ?= base
@@ -50,7 +59,8 @@ endif
 
 setup-tests:
 	source $(conda_activate) base; conda create -y -n $(conda_env) --use-local \
-		$(foreach x,$(extra_channels),-c $(x)) $(pkg_name) $(foreach x,$(test_pkgs),"$(x)") $(foreach x,$(extra_pkgs),"$(x)")
+		$(foreach x,$(extra_channels),-c $(x)) $(pkg_name) $(foreach x,$(test_pkgs),"$(x)") \
+		$(foreach x,$(docs_pkgs),"$(x)") $(foreach x,$(pkgs),"$(x)") $(foreach x,$(extra_pkgs),"$(x)")
 
 conda-rerender: setup-build 
 	python $(workdir)/$(build_script) -w $(workdir) -l $(last_stable) -B 0 -p $(pkg_name) \
