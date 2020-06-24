@@ -71,6 +71,11 @@ aliases:
        make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF_VER $COVERAGE_PKGS"
        make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/spec_artifacts conda_env_filename=$CIRCLE_JOB
 
+  - &get_testdata
+    name: get_testdata
+    command: | 
+      git clone git://github.com/cdat/uvcdat-testdata
+
   - &run_tests
     name: run_tests
     command: |
@@ -122,8 +127,6 @@ jobs:
          - run: *setup_miniconda
          - run: *conda_rerender
          - run: *conda_build
-         - run: ls -l artifacts
-         - run: ls -l artifacts/ar*
          - persist_to_workspace:
               root: .
               paths: 
@@ -152,6 +155,7 @@ jobs:
          - run: echo "LIBNETCDF=$LIBNETCDF" >> $BASH_ENV
          - run: *setup_env
          - run: *setup_run_tests
+         - run: *get_testdata
          - run: *run_tests
          - store_artifacts:
               path: tests_html
