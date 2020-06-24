@@ -73,6 +73,13 @@ conda-dump-env:
 
 	source $(conda_activate) $(conda_env); conda list --explicit > $(artifact_dir)/$(conda_env_filename).txt
 
+get-testdata:
+ifeq ($(wildcard uvcdat-testdata),)
+	git clone https://github.com/CDAT/uvcdat-testdata
+else
+	cd uvcdat-testdata; git pull
+endif
+
 run-tests:
 	source $(conda_activate) $(conda_env); python run_tests.py -H -v2 $(coverage_opt)
 
