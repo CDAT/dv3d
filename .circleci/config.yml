@@ -68,7 +68,12 @@ aliases:
        conda activate base
        export CONDA_PY_VER="python=$PY_VER"
        export LIBNETCDF_VER="libnetcdf=*=${LIBNETCDF}_*"
-       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF_VER $COVERAGE_PKGS"
+       if [[ `uname` == "Linux" ]]; then
+          MESA="mesalib=18.3.1"
+       else
+          MESA="mesalib=17.3.9"
+       fi
+       make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $LIBNETCDF_VER $COVERAGE_PKGS $MESA"
        make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/spec_artifacts conda_env_filename=$CIRCLE_JOB
 
   - &get_testdata
