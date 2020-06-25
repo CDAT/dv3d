@@ -1,5 +1,5 @@
 .PHONY: conda-info conda-list setup-build setup-tests conda-rerender \
-	conda-build conda-upload conda-dump-env conda-cp-output get_testdata \
+	conda-build conda-upload conda-dump-env get_testdata \
 	run-tests run-coveralls
 
 SHELL = /bin/bash
