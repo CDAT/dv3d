@@ -32,7 +32,7 @@ extra_channels ?= cdat/label/nightly conda-forge
 conda ?= $(or $(CONDA_EXE),$(shell find /opt/*conda*/bin $(HOME)/*conda* -type f -iname conda))
 conda_env_filename ?= spec-file
 
- Only populate if workdir is not defined
+# Only populate if workdir is not defined
 ifeq ($(origin workdir),undefined)
 # Create .tempdir if it doesn't exist
 ifeq ($(wildcard $(PWD)/.tempdir),)
