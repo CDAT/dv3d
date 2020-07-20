@@ -2,4 +2,4 @@ channel_sources:
   - conda-forge/label/cdat_dev
   - conda-forge
   - cdat/label/cdat_dev
-  - cdat/label/nightly
+
