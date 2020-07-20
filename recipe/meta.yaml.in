@@ -1,13 +1,13 @@
 package:
     name: dv3d
-    version: "@VERSION@"
+    version: "8.2.1.rc1"
 
 source:
-    git_rev: @UVCDAT_BRANCH@
-    git_url: git://github.com/cdat/dv3d.git
+  url: https://github.com/CDAT/dv3d/archive/v8.2.1.rc1.tar.gz
+  sha256: 9c5c25f5766220541de9422777e3441bb257228d41124a43f66d73d2feaeaa09
 
 build:
-  number: @BUILD_NUMBER@
+  number: 0
   script: python setup.py install
   noarch: python
  
