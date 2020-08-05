@@ -28,7 +28,9 @@ conda_test_env ?= test-$(pkg_name)
 conda_build_env ?= build-$(pkg_name)
 
 branch ?= $(shell git rev-parse --abbrev-ref HEAD)
-extra_channels ?= conda-forge cdat/label/v8.2.1
+
+# build should only pickup testsrunner from cdat/label/nightly
+extra_channels ?= conda-forge cdat/label/v8.2.1 cdat/label/nightly
 conda ?= $(or $(CONDA_EXE),$(shell find /opt/*conda*/bin $(HOME)/*conda* -type f -iname conda))
 conda_env_filename ?= spec-file
 
