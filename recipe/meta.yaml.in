@@ -3,8 +3,8 @@ package:
     version: 8.2.1
 
 source:
-    url: https://github.com/CDAT/dv3d/archive/v8.2.1.tar
-    sha256: d542641e259327777642616def558ea97ffdac5788f7258348812534a89f01a3
+  url: https://github.com/CDAT/dv3d/archive/v8.2.1.tar.gz
+  sha256: d542641e259327777642616def558ea97ffdac5788f7258348812534a89f01a3
 
 build:
   number: 0
@@ -27,7 +27,7 @@ test:
 
 about:
     home:  http://github.com/cdat/dv3d
-    summary: >
+    summary:
         A version of DV3D customized for the UVIS framework. Removes dependencies on Qt and vistrails. Integrates structured and unstructured grid plotting. Introduces VTK-only interaction widgets. Integrates all structured grid visualization modes (slice, surface, volume) in a single plot.
     license: BSD
     license_file: bsd-3-clause.txt
