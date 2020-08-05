@@ -1,0 +1,3 @@
+channel_sources:
+  - conda-forge
+  - cdat/label/v8.2.1
