@@ -3,7 +3,7 @@ package:
     version: 8.2.1
 
 source:
-    url: https://github.com/cdat/dv3d.git
+    url: https://github.com/cdat/dv3d/archive/v8.2.1.tar.gz
     sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
 build:
