@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os, sys
 import glob
 from subprocess import PIPE, Popen
-Version = "8.0"
+Version = "8.2.1"
 p = Popen(
     ("git",
      "describe",
